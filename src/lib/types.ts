@@ -48,6 +48,13 @@ export interface College {
   round: number
   cutoffRank: number
   gmRank: number
+  chances: Chance
+}
+
+enum Chance{
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
 }
 
 export interface APIResponse {
@@ -56,9 +63,9 @@ export interface APIResponse {
   page?: number
   message?: string
   status: string
+  hasMore: boolean
 }
 
-// Course name to code mapping (reverse of what backend expects)
 export const COURSE_NAME_TO_CODE = {
   "Computer Science": "CS",
   "Artificial Intelligence": "AI",
@@ -111,19 +118,16 @@ export const COURSE_NAME_TO_CODE = {
   "Internet of Things": "IOT",
 } as const
 
-// Code to name mapping for form dropdown
+
 export const COURSE_CATEGORIES = Object.fromEntries(
   Object.entries(COURSE_NAME_TO_CODE).map(([name, code]) => [code, name]),
 ) as Record<string, string>
 
-// Helper function to get course code from full course name
 export const getCourseCode = (courseName: string): string => {
-  // Try exact match first
   if (COURSE_NAME_TO_CODE[courseName as keyof typeof COURSE_NAME_TO_CODE]) {
     return COURSE_NAME_TO_CODE[courseName as keyof typeof COURSE_NAME_TO_CODE]
   }
 
-  // Try partial matching for complex course names
   const lowerCourseName = courseName.toLowerCase()
 
   if (lowerCourseName.includes("computer science") && lowerCourseName.includes("data science")) {
@@ -157,7 +161,6 @@ export const getCourseCode = (courseName: string): string => {
     return "BT"
   }
 
-  // Return first two letters as fallback
   return courseName.substring(0, 2).toUpperCase()
 }
 
@@ -200,3 +203,44 @@ export const INDIAN_STATES = [
   "Lakshadweep",
   "Puducherry",
 ]
+
+export interface CollegeRanking {
+  collegeRank: number
+  collegeID: string
+  collegeName: string
+  mostCompetitiveCourse: string
+  mostCompetitiveRank: number
+  leastCompetitiveCourse: string
+  leastCompetitiveRank: number
+}
+
+export interface CourseWithCutoff extends CourseInfo {
+  minRank: number
+}
+
+export interface CollegeCourses {
+  collegeID: string
+  collegeName: string
+  CourseList: CourseInfo[]
+}
+
+export interface CollegeCutoffs {
+  collegeID: string
+  collegeName: string
+  CourseList: CourseWithCutoff[]
+}
+
+export interface CourseInfo {
+  courseName: string
+  courseRank: number
+}
+
+export interface CollegeRanking {
+  collegeRank: number
+  collegeID: string
+  collegeName: string
+  mostCompetitiveCourse: string
+  mostCompetitiveRank: number
+  leastCompetitiveCourse: string
+  leastCompetitiveRank: number
+}

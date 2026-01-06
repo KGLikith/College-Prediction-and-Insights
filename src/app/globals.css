@@ -49,6 +49,8 @@
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
+  --chart-primary: 221 83% 53%;     /* blue */
+  --chart-secondary: 142 71% 45%;
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
@@ -76,13 +78,22 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --chart-high: 152 69% 45%;
+  --chart-medium: 38 92% 50%;
+  --chart-low: 0 84% 60%;
+
 }
 
 .dark {
+   --chart-high: 152 71% 55%;
+  --chart-medium: 38 95% 55%;
+  --chart-low: 0 91% 65%;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
+  --chart-primary: 217 91% 60%;
+  --chart-secondary: 142 69% 58%;
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);

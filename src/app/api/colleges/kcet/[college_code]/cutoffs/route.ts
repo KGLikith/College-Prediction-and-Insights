@@ -1,0 +1,66 @@
+import { NextResponse } from "next/server";
+import axios from "axios";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ college_code: string }> }
+) {
+  const { college_code } = await context.params;
+
+  if (!college_code) {
+    return NextResponse.json(
+      { message: "College code is required" },
+      { status: 400 }
+    );
+  }
+
+  try { 
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get("cat") || "GM";
+
+    const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/cutoffs?cat=${category}`;
+
+    console.log(
+      `[API] Fetching cutoffs for college: ${college_code}, category: ${category}`
+    );
+
+    const response = await axios.get(apiUrl, {
+      timeout: 10000,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    return NextResponse.json(response.data, {
+      status: 200,
+      headers: {
+        "Cache-Control": "s-maxage=300, stale-while-revalidate=600",
+      },
+    });
+  } catch (error: any) {
+    console.error("[API ERROR] Cutoffs:", error.message);
+
+    if (error.response) {
+      return NextResponse.json(
+        {
+          message:
+            error.response.data?.message ||
+            "Backend error while fetching cutoffs",
+          status: "error",
+        },
+        { status: error.response.status }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        message: "Failed to fetch college cutoffs",
+        status: "error",
+      },
+      { status: 500 }
+    );
+  }
+}

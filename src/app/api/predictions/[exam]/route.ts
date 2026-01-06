@@ -14,7 +14,7 @@ export async function GET(req: Request, context: { params: Promise<{ exam: strin
     const { searchParams } = new URL(req.url);
     const queryString = searchParams.toString();
     console.log(`Fetching data for exam: ${exam} with params: ${queryString}`);
-    const apiUrl = `${BACKEND_URL}/api/exams/${exam}?${queryString}&year=2024`;
+    const apiUrl = `${BACKEND_URL}/api/predictions/${exam}?${queryString}`;
 
     const response = await axios.get(apiUrl, {
       timeout: 10000,

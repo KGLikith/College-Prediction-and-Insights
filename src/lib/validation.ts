@@ -44,7 +44,8 @@ export const kcetSchema = baseSchema.extend({
 });
 
 export const comedkSchema = baseSchema.extend({
-  exam: z.literal("comedk"),
+  predict: z.boolean().optional(),
+
   category: z.enum(["GM", "KKR"], { error: "Category is required" }),
   round: z.preprocess(emptyToUndefined, z.number().min(1).max(4).optional()),
 });
@@ -54,6 +55,7 @@ export const jeeSchema = baseSchema.extend({
   category: z.enum(["OPEN", "OBC-NCL", "EWS", "SC", "ST"], {
     error: "Category is required",
   }),
+
   round: z.preprocess(emptyToUndefined, z.number().min(1).max(4).optional()),
   pwd: z.boolean({ error: "PWD selection is required" }),
   state: z.string({ error: "State is required" }).min(1, "State is required"),
