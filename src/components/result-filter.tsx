@@ -2,11 +2,19 @@
 
 import { useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Search, Filter, X } from "lucide-react"
+
 import { COURSE_NAME_TO_CODE } from "@/lib/types"
+import { DISTRICT_CODE_TO_NAME } from "@/lib/types"
 
 interface ResultsFilterProps {
   collegeCount: number
@@ -14,6 +22,7 @@ interface ResultsFilterProps {
   onCourseFilter: (value: string) => void
   onChancesFilter: (value: string) => void
   onRoundFilter: (value: string) => void
+  onDistrictFilter: (value: string) => void
   onClearFilters: () => void
 }
 
@@ -23,39 +32,53 @@ export function ResultsFilter({
   onCourseFilter,
   onChancesFilter,
   onRoundFilter,
+  onDistrictFilter,
   onClearFilters,
 }: ResultsFilterProps) {
   const [search, setSearch] = useState("")
   const [course, setCourse] = useState("all")
   const [chances, setChances] = useState("all")
   const [round, setRound] = useState("all")
+  const [district, setDistrict] = useState("ALL")
 
-  const availableCourses = useMemo(() => Object.keys(COURSE_NAME_TO_CODE), [])
+  const availableCourses = useMemo(
+    () => Object.keys(COURSE_NAME_TO_CODE),
+    []
+  )
 
-  const hasActiveFilters = search !== "" || course !== "all" || chances !== "all" || round !== "all"
+  const hasActiveFilters =
+    search !== "" ||
+    course !== "all" ||
+    chances !== "all" ||
+    round !== "all" ||
+    district !== "ALL"
 
   const handleClear = () => {
     setSearch("")
     setCourse("all")
     setChances("all")
     setRound("all")
+    setDistrict("ALL")
 
     onSearchChange("")
     onCourseFilter("all")
     onChancesFilter("all")
     onRoundFilter("all")
+    onDistrictFilter("ALL")
     onClearFilters()
   }
 
   return (
-    <Card className="shadow-md border-2">
+    <Card className="border-2 shadow-md">
       <CardContent className="py-5">
         <div className="flex flex-wrap items-end gap-4">
           {/* TITLE */}
-          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <div className="flex items-center gap-2 font-semibold">
             <Filter className="h-5 w-5 text-primary" />
             Filters
-            <span className="text-muted-foreground font-normal">({collegeCount})</span>
+            <span className="text-muted-foreground font-normal">
+              ({collegeCount})
+            </span>
           </div>
 
           {/* SEARCH */}
@@ -68,7 +91,7 @@ export function ResultsFilter({
                 setSearch(e.target.value)
                 onSearchChange(e.target.value)
               }}
-              className="pl-10 h-10 border-2 focus:border-primary transition-colors"
+              className="pl-10 h-10 border-2"
             />
           </div>
 
@@ -80,7 +103,7 @@ export function ResultsFilter({
               onCourseFilter(v)
             }}
           >
-            <SelectTrigger className="w-[210px] h-10 border-2 focus:border-primary">
+            <SelectTrigger className="w-[210px] h-10 border-2">
               <SelectValue placeholder="Course" />
             </SelectTrigger>
             <SelectContent>
@@ -88,6 +111,26 @@ export function ResultsFilter({
               {availableCourses.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* DISTRICT */}
+          <Select
+            value={district}
+            onValueChange={(v) => {
+              setDistrict(v)
+              onDistrictFilter(v)
+            }}
+          >
+            <SelectTrigger className="w-[220px] h-10 border-2">
+              <SelectValue placeholder="District" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(DISTRICT_CODE_TO_NAME).map(([code, name]) => (
+                <SelectItem key={code} value={code}>
+                  {name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -101,7 +144,7 @@ export function ResultsFilter({
               onChancesFilter(v)
             }}
           >
-            <SelectTrigger className="w-[160px] h-10 border-2 focus:border-primary">
+            <SelectTrigger className="w-[160px] h-10 border-2">
               <SelectValue placeholder="Chances" />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +163,7 @@ export function ResultsFilter({
               onRoundFilter(v)
             }}
           >
-            <SelectTrigger className="w-[150px] h-10 border-2 focus:border-primary">
+            <SelectTrigger className="w-[150px] h-10 border-2">
               <SelectValue placeholder="Round" />
             </SelectTrigger>
             <SelectContent>
@@ -137,7 +180,7 @@ export function ResultsFilter({
               variant="outline"
               size="sm"
               onClick={handleClear}
-              className="ml-auto h-10 border-2 hover:bg-destructive hover:text-destructive-foreground bg-transparent"
+              className="ml-auto h-10 border-2"
             >
               <X className="h-4 w-4 mr-2" />
               Clear

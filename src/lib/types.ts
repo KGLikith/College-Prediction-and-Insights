@@ -5,7 +5,6 @@ export enum ExamTypeEnum {
   JEE = "jee",
 }
 
-
 export interface BaseFormData {
   exam: ExamType
   rank: number
@@ -244,3 +243,37 @@ export interface CollegeRanking {
   leastCompetitiveCourse: string
   leastCompetitiveRank: number
 }
+
+export const DISTRICT_CODE_TO_NAME = {
+  ALL: "All Districts",
+  MDY: "Mandya",
+  GDG: "Gadag",
+  KDG: "Kodagu",
+  DVG: "Davangere",
+  TMK: "Tumakuru",
+  KLR: "Kolar",
+  VJP: "Vijayapura",
+  KLB: "Kalaburagi",
+  CMG: "Chikkamagaluru",
+  UDP: "Udupi",
+  KPL: "Koppal",
+  RCR: "Raichur",
+  SHM: "Shivamogga",
+  CKP: "Chikkaballapura",
+  RMN: "Ramanagara",
+  HSN: "Hassan",
+  DWD: "Dharwad",
+  BID: "Bidar",
+  CTD: "Chitradurga",
+  UKD: "Uttara Kannada",
+  VJN: "Vijayanagar",
+  BLL: "Ballari",
+  DKD: "Dakshina Kannada",
+  CMR: "Chamarajanagara",
+  MYS: "Mysuru",
+  BLG: "Belagavi",
+  BLR: "Bengaluru",
+  BAG: "Bagalkot",
+  HVR: "Haveri",
+  YDG: "Yadgir",
+} as const

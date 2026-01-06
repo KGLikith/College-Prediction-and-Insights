@@ -16,6 +16,7 @@ const baseSchema = z.object({
     .min(1, "Rank must be at least 1")
     .max(1000000, "Rank cannot exceed 1,000,000")
     .refine((val) => Number.isInteger(val), { message: "Rank must be an integer" }),
+  district: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   round: z.preprocess(emptyToUndefined, z.number().min(1).optional()),
   course: z.preprocess(
@@ -41,17 +42,19 @@ export const kcetSchema = baseSchema.extend({
   hk: z.boolean().optional(),
   rural: z.boolean().optional(),
   kannada: z.boolean().optional(),
+  district: z.string().optional(),
 });
 
 export const comedkSchema = baseSchema.extend({
   predict: z.boolean().optional(),
-
+  district: z.string().optional(),
   category: z.enum(["GM", "KKR"], { error: "Category is required" }),
   round: z.preprocess(emptyToUndefined, z.number().min(1).max(4).optional()),
 });
 
 export const jeeSchema = baseSchema.extend({
   exam: z.literal("jee"),
+  district: z.string().optional(),
   category: z.enum(["OPEN", "OBC-NCL", "EWS", "SC", "ST"], {
     error: "Category is required",
   }),

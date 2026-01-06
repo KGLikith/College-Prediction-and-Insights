@@ -24,8 +24,6 @@ import {
   BookOpen,
   Users,
   Trophy,
-  BarChart3,
-  TrendingUp,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Form } from "@/components/ui/form"
@@ -36,9 +34,17 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 import { ExamTypeEnum, type ExamType } from "@/lib/types"
 import { getValidationSchema } from "@/lib/validation"
+import { DISTRICT_CODE_TO_NAME } from "@/lib/types"
 
 export default function Home() {
   const [selectedExam, setSelectedExam] = useState<ExamType>("kcet")
@@ -47,16 +53,16 @@ export default function Home() {
 
   const schema = useMemo(() => getValidationSchema(selectedExam), [selectedExam])
   type SchemaType = z.infer<typeof schema>
-
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      exam: selectedExam,
-      rank: undefined,
-      category: "",
-      round: undefined,
-      course: undefined,
-    },
+  const form = useForm({ 
+    resolver: zodResolver(schema), 
+    defaultValues: { 
+      exam: selectedExam, 
+      rank: undefined, 
+      category: "", 
+      round: undefined, 
+      course: undefined, 
+      district: "ALL"
+    }, 
   })
 
   const mutation = useMutation({
@@ -74,13 +80,16 @@ export default function Home() {
             key === "instituteType"
               ? "institute-type"
               : key === "category"
-              ? "cat"
-              : key
+                ? "cat"
+                : key
+
           queryParams.append(apiKey, value.toString())
         }
       })
 
-      const basePath = usePrediction ? "/api/predictions" : "/api/exams"
+      const basePath = usePrediction
+        ? "/api/predictions"
+        : "/api/exams"
 
       const response = await axios.get(
         `${basePath}/${data.exam}?${queryParams.toString()}`
@@ -108,6 +117,7 @@ export default function Home() {
 
   const onSubmit = (data: SchemaType) => mutation.mutate(data)
 
+  /* ---------------- Exam Change ---------------- */
   const handleExamChange = (exam: ExamType) => {
     setSelectedExam(exam)
 
@@ -117,6 +127,7 @@ export default function Home() {
       category: "",
       round: undefined,
       course: undefined,
+      district: "ALL",
     }
 
     if (exam === "kcet") {
@@ -147,29 +158,16 @@ export default function Home() {
           Find Your Dream College
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Get accurate college predictions based on your rank and preferences
-          for KCET, COMEDK, and JEE exams.
+          Accurate college predictions based on rank, category, and preferences.
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid sm:grid-cols-3 gap-6">
         {[
-          {
-            icon: BookOpen,
-            title: "500+ Colleges",
-            text: "Comprehensive database",
-          },
-          {
-            icon: Users,
-            title: "Real-time Data",
-            text: "Updated cutoff ranks",
-          },
-          {
-            icon: Trophy,
-            title: "Accurate Predictions",
-            text: "Advanced algorithms",
-          },
+          { icon: BookOpen, title: "500+ Colleges", text: "Comprehensive data" },
+          { icon: Users, title: "Updated Cutoffs", text: "Latest rounds" },
+          { icon: Trophy, title: "Smart Predictions", text: "Rank-based logic" },
         ].map(({ icon: Icon, title, text }) => (
           <Card key={title} className="text-center">
             <CardHeader>
@@ -183,92 +181,79 @@ export default function Home() {
         ))}
       </div>
 
-      {/* 🔍 Exploration Buttons */}
-      <div className="flex flex-wrap justify-center gap-4">
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => router.push("/dashboard/explore/colleges")}
-          className="gap-2"
-        >
-          <BarChart3 className="h-4 w-4" />
-          Explore Colleges
-        </Button>
-
-        {/* <Button
-          variant="outline"
-          size="lg"
-          onClick={() => router.push("/dashboard/explore/courses")}
-          className="gap-2"
-        >
-          <BookOpen className="h-4 w-4" />
-          Explore Courses
-        </Button>
-
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => router.push("/dashboard/explore/cutoffs")}
-          className="gap-2"
-        >
-          <TrendingUp className="h-4 w-4" />
-          Cutoff Trends
-        </Button>
-
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => router.push("/dashboard/analytics")}
-          className="gap-2"
-        >
-          <Trophy className="h-4 w-4" />
-          Analytics
-        </Button> */}
-      </div>
-
       {/* Form */}
       <Card>
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-semibold">
-            Get Your College Predictions
+            Get College Predictions
           </CardTitle>
           <CardDescription>
-            Select your exam and enter your details to find matching colleges.
+            Enter your exam details to see eligible colleges.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-8">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* Exam Tabs */}
               <Tabs
                 value={selectedExam}
-                onValueChange={(e) => handleExamChange(e as ExamType)}
-                className="w-full"
+                onValueChange={(e) =>
+                  handleExamChange(e as ExamType)
+                }
               >
-                <TabsList className="grid grid-cols-3 w-full">
+                <TabsList className="grid grid-cols-3">
                   <TabsTrigger value={ExamTypeEnum.KCET}>KCET</TabsTrigger>
                   <TabsTrigger value={ExamTypeEnum.COMEDK}>COMEDK</TabsTrigger>
                   <TabsTrigger value={ExamTypeEnum.JEE}>JEE</TabsTrigger>
                 </TabsList>
-                <TabsContent value={selectedExam} className="pt-6" />
+                <TabsContent value={selectedExam} />
               </Tabs>
 
+              {/* Core Fields */}
               <FormFields examType={selectedExam} />
 
-              <div className="flex items-center gap-2 justify-center">
+              {/* District (NOT for JEE) */}
+              {selectedExam !== "jee" && (
+                <div className="max-w-sm mx-auto">
+                  <Label className="mb-2 block">Preferred District</Label>
+                  <Select
+                    value={form.watch("district")}
+                    onValueChange={(v) =>
+                      form.setValue("district", v as any)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Districts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(DISTRICT_CODE_TO_NAME).map(
+                        ([code, name]) => (
+                          <SelectItem key={code} value={code}>
+                            {name}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Prediction Toggle */}
+              <div className="flex items-center justify-center gap-2">
                 <Checkbox
                   id="predict"
                   checked={usePrediction}
-                  onCheckedChange={(v) => setUsePrediction(Boolean(v))}
+                  onCheckedChange={(v) =>
+                    setUsePrediction(Boolean(v))
+                  }
                 />
-                <Label htmlFor="predict" className="cursor-pointer">
+                <Label htmlFor="predict">
                   Use predicted results
                 </Label>
               </div>
 
+              {/* Error */}
               {mutation.error && (
                 <Alert variant="destructive">
                   <AlertDescription>
@@ -277,6 +262,7 @@ export default function Home() {
                 </Alert>
               )}
 
+              {/* Submit */}
               <div className="flex justify-center">
                 <Button
                   type="submit"
@@ -287,12 +273,12 @@ export default function Home() {
                   {mutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Getting Predictions...
+                      Loading...
                     </>
                   ) : (
                     <>
                       <Search className="mr-2 h-4 w-4" />
-                      Get College Predictions
+                      Get Predictions
                     </>
                   )}
                 </Button>
