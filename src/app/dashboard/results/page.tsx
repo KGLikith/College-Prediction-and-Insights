@@ -75,20 +75,20 @@ export default function FlatResults() {
   const [page, setPage] = useState(1)
   const [limit] = useState(25)
 
-  /* ✅ ALL 4 FILTERS */
   const [filters, setFilters] = useState<{
     search: string
     course: string
     chances: string
     round: number | null
+    district: string
   }>({
     search: "",
     course: "all",
     chances: "all",
     round: null,
+    district: "ALL"
   })
 
-  /* ---------- API FETCH ---------- */
   useEffect(() => {
     const fetchResults = async () => {
       try {
@@ -106,6 +106,8 @@ export default function FlatResults() {
           queryParams.set("chances", filters.chances)
         if (filters.round !== null)
           queryParams.set("round", filters.round.toString())
+        if (filters.district !== "ALL")
+          queryParams.set("district", filters.district)
 
         router.replace(`?${queryParams.toString()}`, { scroll: false })
 
@@ -198,7 +200,6 @@ export default function FlatResults() {
         </CardContent>
       </Card>
 
-      {/* ⭐ TOP 3 */}
       {top3.length > 0 && (
         <section>
           <h2 className="text-xl font-semibold mb-3">Top Matches</h2>
@@ -218,7 +219,6 @@ export default function FlatResults() {
         <StatCard title="Low Chance" value={low} icon={TrendingUp} />
       </div>
 
-      {/* VISUALS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChanceDonutChart colleges={filteredColleges} />
         <RankComparisonChart colleges={filteredColleges} />
@@ -227,7 +227,6 @@ export default function FlatResults() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <ResultsFilter
           collegeCount={filteredColleges.length}
-          // colleges={filteredColleges}
           onSearchChange={(v: string) =>
             setFilters((f) => ({ ...f, search: v }))
           }
@@ -243,12 +242,14 @@ export default function FlatResults() {
               round: v === "all" ? null : Number(v),
             }))
           }
+          onDistrictFilter={(v) => setFilters((f) => ({ ...f, district: v }))}
           onClearFilters={() =>
             setFilters({
               search: "",
               course: "all",
               chances: "all",
               round: null,
+              district: "ALL"
             })
           }
         />

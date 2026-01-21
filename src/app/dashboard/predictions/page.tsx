@@ -65,7 +65,6 @@ export default function PredictionsPage() {
   const userRank = searchParams.get("rank")
   const userCategory = searchParams.get("cat")
 
-  /* ---------- DATA FETCH ---------- */
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
@@ -107,7 +106,6 @@ export default function PredictionsPage() {
     fetchPredictions()
   }, [examType, searchParams, page, limit, filters])
 
-  /* ---------- DERIVED DATA ---------- */
   const colleges: College[] = results?.colleges ?? []
 
   const filteredColleges = useMemo(() => {

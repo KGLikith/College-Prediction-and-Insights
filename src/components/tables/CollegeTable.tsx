@@ -23,7 +23,7 @@ export const CollegeTable = ({ colleges, title = "Results" }: CollegeTableProps)
   }
 
   return (
-    <Card className="animate-fade-in shadow-lg border-2">
+    <Card className="animate-fade-in shadow-lg border-2 pt-0">
       <CardContent className="p-0">
         <div className="rounded-lg border-2 border-border overflow-hidden">
           <Table>
