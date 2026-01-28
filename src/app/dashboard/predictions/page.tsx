@@ -29,7 +29,6 @@ import { RankComparisonChart } from "@/components/charts/RankComparisonChart"
 import { TableSkeleton } from "@/components/LoadingSkeleton"
 import { CollegeTable } from "@/components/tables/CollegeTable"
 
-/* ---------- helpers ---------- */
 const getCourseCode = (courseName: string): string => {
   if (!courseName) return ""
   const upper = courseName.toUpperCase()
@@ -125,7 +124,6 @@ export default function PredictionsPage() {
   const medium = filteredColleges.filter((c) => c.chances === "medium").length
   const low = filteredColleges.filter((c) => c.chances === "low").length
 
-  /* ---------- STATES ---------- */
   if (loading)
     return (
       <div className="flex justify-center py-32">
@@ -151,12 +149,10 @@ export default function PredictionsPage() {
       </Card>
     )
 
-  /* ---------- UI ---------- */
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-6">
-      {/* HEADER */}
       <div className="flex justify-between items-center">
-        <Button variant="outline" onClick={() => router.push("/")}>
+        <Button variant="outline" onClick={() => router.push("/dashboard")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
         </Button>
@@ -172,7 +168,6 @@ export default function PredictionsPage() {
         </div>
       </div>
 
-      {/* META */}
       <Card className="bg-muted/50 border-2">
         <CardContent className="py-4 flex flex-wrap gap-6 font-medium">
           <div>Exam: <b>{examType.toUpperCase()}</b></div>
@@ -182,7 +177,6 @@ export default function PredictionsPage() {
         </CardContent>
       </Card>
 
-      {/* TOP 3 */}
       {top3.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold mb-4">Top Matches</h2>
@@ -194,7 +188,6 @@ export default function PredictionsPage() {
         </div>
       )}
 
-      {/* STATS */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Colleges" value={filteredColleges.length} icon={Building2} />
         <StatCard title="High Chance" value={high} icon={Award} />
@@ -202,7 +195,6 @@ export default function PredictionsPage() {
         <StatCard title="Low Chance" value={low} icon={TrendingUp} />
       </div>
 
-      {/* CHARTS */}
       <div className="grid lg:grid-cols-2 gap-8">
         <ChanceDonutChart colleges={filteredColleges} />
         <RankComparisonChart colleges={filteredColleges} />
@@ -226,7 +218,6 @@ export default function PredictionsPage() {
         }
       />
 
-      {/* TABLE */}
       {loading ? (
         <TableSkeleton />
       ) : (

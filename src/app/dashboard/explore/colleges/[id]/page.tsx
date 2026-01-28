@@ -19,8 +19,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CollegeCourses, CollegeCutoffs, CourseWithCutoff } from "@/lib/types"
 import { DashboardLayout } from "../../DashboardLayout"
-import { CourseRankChart } from "@/components/charts/CourseRankChart"
+import { CourseRankHeatmap } from "@/components/charts/CourseRankHeatmap"
 import { CourseTable } from "@/components/tables/CourseTable"
+import { CourseRankChart } from "@/components/charts/CourseRankChart" // Import CourseRankChart
+import { CutoffDivergingChart } from "@/components/charts/CutoffDivergingChart"
 
 const CollegeDetailPage = () => {
   const { id: collegeCode } = useParams<{ id: string }>()
@@ -34,14 +36,11 @@ const CollegeDetailPage = () => {
   const [activeTab, setActiveTab] = useState("courses")
 
   useEffect(() => {
-    console.log("ehllo")
     if (!collegeCode) return
 
     const fetchData = async () => {
       try {
         setIsLoading(true)
-
-        console.log('akdfjalksdf jalsdkf')
 
         const [coursesRes, cutoffsRes] = await Promise.all([
           fetch(`/api/colleges/kcet/${collegeCode}/courses`, {
@@ -80,11 +79,10 @@ const CollegeDetailPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="animate-fade-in">
           <Button
             variant="ghost"
-            onClick={() => router.push("/explore/colleges")}
+            onClick={() => router.push("/dashboard/explore/colleges")}
             className="mb-4 gap-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -161,7 +159,7 @@ const CollegeDetailPage = () => {
               </>
             ) : (
               <>
-                <CourseRankChart courses={courseList} />
+                <CourseRankHeatmap courses={courseList} title="Course Rankings by Competitiveness" />
                 <CourseTable courses={courseList} title="All Courses" />
               </>
             )}
@@ -171,19 +169,17 @@ const CollegeDetailPage = () => {
             {isLoading ? (
               <>
                 <ChartSkeleton />
+                <ChartSkeleton />
                 <TableSkeleton />
               </>
             ) : (
               <>
-                <CourseRankChart
+                <CutoffDivergingChart
                   courses={cutoffList as CourseWithCutoff[]}
-                  title="Course Cutoffs"
-                  dataKey="minRank"
-                  barColor="hsl(var(--chart-secondary))"
                 />
                 <CourseTable
                   courses={cutoffList}
-                  title="Cutoff Comparison"
+                  title="Cutoff Analysis"
                   showCutoff
                 />
               </>

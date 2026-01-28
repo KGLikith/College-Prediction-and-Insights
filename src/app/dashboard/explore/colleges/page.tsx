@@ -76,40 +76,36 @@ const CollegesPage = () => {
                 title="Total Colleges"
                 value={colleges.length}
                 icon={Building2}
-                // subtitle="In database"
+                variant="default"
               />
               <StatCard
                 title="Top College"
-                value={colleges[0]?.collegeName.split(" ")[0] || "-"}
+                value={colleges[0]?.collegeName || "-"}
                 icon={Trophy}
-                // subtitle={`Rank ${
-                //   colleges[0]?.mostCompetitiveRank?.toLocaleString() || "-"
-                // }`}
+                variant="success"
               />
               <StatCard
                 title="Avg. Top Cutoff"
                 value={avgMostCompetitive.toLocaleString()}
                 icon={TrendingUp}
-                // subtitle="Most competitive courses"
+                variant="success"
               />
               <StatCard
                 title="Avg. Lowest Cutoff"
                 value={avgLeastCompetitive.toLocaleString()}
                 icon={TrendingDown}
-                // subtitle="Least competitive courses"
+                variant="warning"
               />
             </>
           )}
         </div>
 
-        {/* Chart */}
         {isLoading ? (
           <ChartSkeleton />
         ) : (
           <CompetitivenessRangeChart colleges={colleges} />
         )}
 
-        {/* Table */}
         {isLoading ? (
           <TableSkeleton />
         ) : (
