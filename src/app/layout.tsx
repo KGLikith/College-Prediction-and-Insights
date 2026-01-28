@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "College Predictor",
+  title: "KCET Admission Insights",
   description: "Predict your college admission chances",
 };
 

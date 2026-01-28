@@ -55,10 +55,10 @@ export function CollegeCard({ college }: CollegeCardProps) {
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">Year & Round</span>
+            <span className="text-muted-foreground">Round</span>
           </div>
           <span className="text-sm font-medium justify-self-end">
-            {college.year} - R{college.round}
+            R{college.round}
           </span>
         </div>
 
