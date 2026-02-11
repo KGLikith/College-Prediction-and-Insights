@@ -290,7 +290,7 @@ export default function Page() {
                 <div className="max-w-md mx-auto flex items-center gap-4 justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 px-5 py-4 bg-neutral-100 dark:bg-neutral-800">
                   <div>
                     <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
-                      AI-based Prediction
+                      ML-based Prediction
                     </p>
                     <p className="text-xs text-neutral-500">
                       Use predictive cutoff estimation
