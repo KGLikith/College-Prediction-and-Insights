@@ -223,11 +223,11 @@ export default function PreferencePage() {
   return (
     <div className="w-full h-[calc(100vh-80px)] flex flex-col lg:flex-row gap-6 p-6 pt-2 pb-0">
 
-      <div className="flex-1 flex flex-col space-y-2 lg:max-h-full lg:overflow-y-auto lg:pr-6 lg:border-r lg:border-neutral-200 dark:lg:border-neutral-800">
+      <div className="flex-1 flex flex-col space-y-2 lg:max-h-full lg:overflow-y-auto lg:pr-6 lg:border-r lg:border-neutral-200 dark:lg:border-neutral-800 pl-1">
         <div className="space-y-4 animate-in fade-in duration-500">
           <div className="flex flex-col gap-0">
             <h1 className="mb-1 text-2xl font-bold text-neutral-900 dark:text-neutral-50">
-              KCET Preference Builder
+              Preference Builder
             </h1>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Enter your details and arrange colleges in priority order
@@ -294,11 +294,8 @@ export default function PreferencePage() {
                   </div>
                 </div>
               </div>
-
             </div>
-
           </div>
-
         </div>
 
         <div className="border-t border-neutral-200 dark:border-neutral-800" />

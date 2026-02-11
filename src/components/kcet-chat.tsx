@@ -134,7 +134,7 @@ export default function ChatPage() {
           <Menu className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
         </button>
         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
-          KCET Assistant
+          Assistant
         </p>
         <div />
       </div>
@@ -162,7 +162,7 @@ export default function ChatPage() {
             >
               <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
                 <p className="font-semibold text-neutral-900 dark:text-neutral-50">
-                  KCET Assistant
+                  Assistant
                 </p>
                 <button onClick={() => setSidebarOpen(false)}>
                   <X className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
@@ -271,7 +271,7 @@ export default function ChatPage() {
                     askQuestion(question)
                   }
                 }}
-                className="max-h-40 min-h-[36px] flex-1 resize-none border-0 bg-transparent p-0 text-sm focus-visible:ring-0"
+                className="max-h-40 min-h-[36px]  flex-1 resize-none bg-neutral-50 dark:bg-neutral-900 p-1 text-sm focus-visible:ring-0"
               />
 
               <Button
@@ -303,7 +303,7 @@ function Sidebar({ askQuestion, disabled }: { askQuestion: (q: string) => void, 
     <div className="flex h-full flex-col p-4">
       <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-          KCET Assistant
+          Assistant
         </h2>
         <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
           Ask questions about counselling

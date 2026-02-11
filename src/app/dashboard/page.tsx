@@ -253,8 +253,8 @@ export default function Page() {
                   >
                     <TabsList className="grid grid-cols-3 bg-neutral-200 dark:bg-neutral-800">
                       <TabsTrigger value={ExamTypeEnum.KCET}>KCET</TabsTrigger>
-                      <TabsTrigger value={ExamTypeEnum.COMEDK}>COMEDK</TabsTrigger>
-                      <TabsTrigger value={ExamTypeEnum.JEE}>JEE</TabsTrigger>
+                      {/* <TabsTrigger value={ExamTypeEnum.COMEDK}>COMEDK</TabsTrigger>
+                      <TabsTrigger value={ExamTypeEnum.JEE}>JEE</TabsTrigger> */}
                     </TabsList>
                     <TabsContent value={selectedExam} />
                   </Tabs>
