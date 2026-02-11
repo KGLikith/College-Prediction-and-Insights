@@ -4,7 +4,6 @@ import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
 import type { z } from "zod"
 
@@ -47,26 +46,33 @@ import { getValidationSchema } from "@/lib/validation"
 import { DISTRICT_CODE_TO_NAME } from "@/lib/types"
 
 export default function Home() {
+  const router = useRouter()
+
   const [selectedExam, setSelectedExam] = useState<ExamType>("kcet")
   const [usePrediction, setUsePrediction] = useState(false)
-  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const schema = useMemo(() => getValidationSchema(selectedExam), [selectedExam])
   type SchemaType = z.infer<typeof schema>
-  const form = useForm({ 
-    resolver: zodResolver(schema), 
-    defaultValues: { 
-      exam: selectedExam, 
-      rank: undefined, 
-      category: "", 
-      round: undefined, 
-      course: undefined, 
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      exam: selectedExam,
+      rank: undefined,
+      category: "",
+      round: undefined,
+      course: undefined,
       district: "ALL"
-    }, 
+    },
   })
 
-  const mutation = useMutation({
-    mutationFn: async (data: SchemaType) => {
+  const onSubmit = async (data: SchemaType) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
       const queryParams = new URLSearchParams()
 
       Object.entries(data).forEach(([key, value]) => {
@@ -95,29 +101,23 @@ export default function Home() {
         `${basePath}/${data.exam}?${queryParams.toString()}`
       )
 
-      return {
-        data: response.data,
-        query: queryParams.toString(),
-      }
-    },
-
-    onSuccess: ({ data, query }) => {
       sessionStorage.setItem(
         usePrediction ? "predictionResults" : "results",
-        JSON.stringify(data)
+        JSON.stringify(response.data)
       )
 
       router.push(
         usePrediction
-          ? `/dashboard/predictions?${query}`
-          : `/dashboard/results?${query}`
+          ? `/dashboard/predictions?${queryParams.toString()}`
+          : `/dashboard/results?${queryParams.toString()}`
       )
-    },
-  })
+    } catch (err) {
+      setError("Failed to fetch results. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  const onSubmit = (data: SchemaType) => mutation.mutate(data)
-
-  /* ---------------- Exam Change ---------------- */
   const handleExamChange = (exam: ExamType) => {
     setSelectedExam(exam)
 
@@ -163,26 +163,83 @@ export default function Home() {
       </div>
 
       {/* Stats */}
-      <div className="grid sm:grid-cols-3 gap-6">
-        {[
-          { icon: BookOpen, title: "500+ Colleges", text: "Comprehensive data" },
-          { icon: Users, title: "Updated Cutoffs", text: "Latest rounds" },
-          { icon: Trophy, title: "Smart Predictions", text: "Rank-based logic" },
-        ].map(({ icon: Icon, title, text }) => (
-          <Card key={title} className="text-center">
-            <CardHeader>
-              <Icon className="h-7 w-7 mx-auto text-muted-foreground mb-2" />
-              <CardTitle className="text-lg">{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{text}</p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Stats */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Explore Colleges */}
+        <Card
+          className="text-center cursor-pointer hover:shadow-md transition"
+          onClick={() => router.push("/dashboard/explore/colleges")}
+        >
+          <CardHeader>
+            <BookOpen className="h-7 w-7 mx-auto text-muted-foreground mb-2" />
+            <CardTitle className="text-lg">280+ Colleges</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Browse all colleges and courses
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Smart Predictions → scroll */}
+        <Card
+          className="text-center cursor-pointer hover:shadow-md transition"
+          onClick={() =>
+            document
+              .getElementById("prediction-form")
+              ?.scrollIntoView({ behavior: "smooth" })
+          }
+        >
+          <CardHeader>
+            <Trophy className="h-7 w-7 mx-auto text-muted-foreground mb-2" />
+            <CardTitle className="text-lg">Smart Predictions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Predict cutoffs using rank & category
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Previous Cutoffs → scroll */}
+        <Card
+          className="text-center cursor-pointer hover:shadow-md transition"
+          onClick={() =>
+            document
+              .getElementById("prediction-form")
+              ?.scrollIntoView({ behavior: "smooth" })
+          }
+        >
+          <CardHeader>
+            <Users className="h-7 w-7 mx-auto text-muted-foreground mb-2" />
+            <CardTitle className="text-lg">Previous Cutoffs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              View last year admission data
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* KCET Assistant */}
+        <Card
+          className="text-center cursor-pointer hover:shadow-md transition"
+          onClick={() => router.push("/dashboard/chat")}
+        >
+          <CardHeader>
+            <Search className="h-7 w-7 mx-auto text-muted-foreground mb-2" />
+            <CardTitle className="text-lg">KCET Assistant</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Ask questions about KCET counselling
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Form */}
-      <Card>
+
+      <Card id="prediction-form">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-semibold">
             Get College Predictions
@@ -198,8 +255,8 @@ export default function Home() {
               {/* Exam Tabs */}
               <Tabs
                 value={selectedExam}
-                onValueChange={(e) =>
-                  handleExamChange(e as ExamType)
+                onValueChange={(v) =>
+                  handleExamChange(v as ExamType)
                 }
               >
                 <TabsList className="grid grid-cols-3">
@@ -213,7 +270,7 @@ export default function Home() {
               {/* Core Fields */}
               <FormFields examType={selectedExam} />
 
-              {/* District (NOT for JEE) */}
+              {/* District */}
               {selectedExam !== "jee" && (
                 <div className="max-w-sm mx-auto">
                   <Label className="mb-2 block">Preferred District</Label>
@@ -254,11 +311,9 @@ export default function Home() {
               </div>
 
               {/* Error */}
-              {mutation.error && (
+              {error && (
                 <Alert variant="destructive">
-                  <AlertDescription>
-                    Failed to fetch results. Please try again.
-                  </AlertDescription>
+                  <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -267,10 +322,10 @@ export default function Home() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={mutation.isPending}
+                  disabled={isLoading}
                   className="px-10"
                 >
-                  {mutation.isPending ? (
+                  {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Loading...

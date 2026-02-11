@@ -17,9 +17,9 @@ export async function GET(
   }
 
   try {
-    const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/courses`;
+    const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/course-codes`;
 
-    console.log(`[API] Fetching courses for college: ${college_code}`);
+    console.log(`[API] Fetching course codes for college: ${college_code}`);
 
     const response = await axios.get(apiUrl, {
       timeout: 10000,

@@ -1,15 +1,25 @@
+"use client"
+
+import { motion } from "framer-motion"
 import Header from "@/components/header"
-import type React from "react"
 
-type Props = {
+export default function DashboardLayout({
+  children,
+}: {
   children: React.ReactNode
-}
-
-export default function Layout({ children }: Props) {
+}) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
       <Header />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">{children}</main>
+
+      <motion.main
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6"
+      >
+        {children}
+      </motion.main>
     </div>
   )
 }

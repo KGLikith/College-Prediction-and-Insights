@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/provider/theme-provider";
-import ClientProvider from "@/provider/react-query";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,10 +36,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
 
-          <ClientProvider>
             {children}
-          </ClientProvider>
-
         </ThemeProvider>
       </body>
     </html>
