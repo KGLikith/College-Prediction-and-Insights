@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -13,33 +13,47 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Search, Filter, X } from "lucide-react"
 
-import { COURSE_NAME_TO_CODE } from "@/lib/types"
-import { DISTRICT_CODE_TO_NAME } from "@/lib/types"
+import { COURSE_NAME_TO_CODE, DISTRICT_CODE_TO_NAME } from "@/lib/types"
 
 interface ResultsFilterProps {
   collegeCount: number
-  onSearchChange: (value: string) => void
-  onCourseFilter: (value: string) => void
-  onChancesFilter: (value: string) => void
-  onRoundFilter: (value: string) => void
-  onDistrictFilter: (value: string) => void
+  initialValues: {
+    search: string
+    course: string
+    chances: string
+    round: string
+    district: string
+  }
+  onApplyFilters: (filters: {
+    search: string
+    course: string
+    chances: string
+    round: string
+    district: string
+  }) => void
   onClearFilters: () => void
 }
 
 export function ResultsFilter({
   collegeCount,
-  onSearchChange,
-  onCourseFilter,
-  onChancesFilter,
-  onRoundFilter,
-  onDistrictFilter,
+  initialValues,
+  onApplyFilters,
   onClearFilters,
 }: ResultsFilterProps) {
-  const [search, setSearch] = useState("")
-  const [course, setCourse] = useState("all")
-  const [chances, setChances] = useState("all")
-  const [round, setRound] = useState("all")
-  const [district, setDistrict] = useState("ALL")
+
+  const [search, setSearch] = useState(initialValues.search)
+  const [course, setCourse] = useState(initialValues.course || "all")
+  const [chances, setChances] = useState(initialValues.chances || "all")
+  const [round, setRound] = useState(initialValues.round || "all")
+  const [district, setDistrict] = useState(initialValues.district || "ALL")
+
+  useEffect(() => {
+    setSearch(initialValues.search)
+    setCourse(initialValues.course)
+    setChances(initialValues.chances)
+    setRound(initialValues.round)
+    setDistrict(initialValues.district)
+  }, [initialValues])
 
   const availableCourses = useMemo(
     () => Object.keys(COURSE_NAME_TO_CODE),
@@ -53,6 +67,16 @@ export function ResultsFilter({
     round !== "all" ||
     district !== "ALL"
 
+  const handleApply = () => {
+    onApplyFilters({
+      search,
+      course,
+      chances,
+      round,
+      district,
+    })
+  }
+
   const handleClear = () => {
     setSearch("")
     setCourse("all")
@@ -60,20 +84,16 @@ export function ResultsFilter({
     setRound("all")
     setDistrict("ALL")
 
-    onSearchChange("")
-    onCourseFilter("all")
-    onChancesFilter("all")
-    onRoundFilter("all")
-    onDistrictFilter("ALL")
     onClearFilters()
   }
 
   return (
-    <Card className="border-2 shadow-md">
-      <CardContent className="py-5">
-        <div className="flex flex-wrap items-end gap-4">
-          {/* TITLE */}
-          <div className="flex items-center gap-2 font-semibold">
+    <Card className="border shadow-sm">
+      <CardContent className="p-6 space-y-6">
+
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-2 font-semibold text-sm">
             <Filter className="h-5 w-5 text-primary" />
             Filters
             <span className="text-muted-foreground font-normal">
@@ -81,111 +101,117 @@ export function ResultsFilter({
             </span>
           </div>
 
-          <div className="relative w-[240px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search college..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                onSearchChange(e.target.value)
-              }}
-              className="pl-10 h-10 border-2"
-            />
-          </div>
-
-          <Select
-            value={course}
-            onValueChange={(v) => {
-              setCourse(v)
-              onCourseFilter(v)
-            }}
-          >
-            <SelectTrigger className="w-[210px] h-10 border-2">
-              <SelectValue placeholder="Course" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Courses</SelectItem>
-              {availableCourses.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* DISTRICT */}
-          <Select
-            value={district}
-            onValueChange={(v) => {
-              setDistrict(v)
-              onDistrictFilter(v)
-            }}
-          >
-            <SelectTrigger className="w-[220px] h-10 border-2">
-              <SelectValue placeholder="District" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(DISTRICT_CODE_TO_NAME).map(([code, name]) => (
-                <SelectItem key={code} value={code}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* CHANCES */}
-          <Select
-            value={chances}
-            onValueChange={(v) => {
-              setChances(v)
-              onChancesFilter(v)
-            }}
-          >
-            <SelectTrigger className="w-[160px] h-10 border-2">
-              <SelectValue placeholder="Chances" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* ROUND */}
-          <Select
-            value={round}
-            onValueChange={(v) => {
-              setRound(v)
-              onRoundFilter(v)
-            }}
-          >
-            <SelectTrigger className="w-[150px] h-10 border-2">
-              <SelectValue placeholder="Round" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="1">Round 1</SelectItem>
-              <SelectItem value="2">Round 2</SelectItem>
-              <SelectItem value="3">Round 3</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* CLEAR */}
-          {hasActiveFilters && (
+          <div className="flex items-center gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={handleClear}
-              className="ml-auto h-10 border-2"
             >
-              <X className="h-4 w-4 mr-2" />
               Clear
             </Button>
-          )}
+
+            <Button
+              size="sm"
+              onClick={handleApply}
+            >
+              Apply Filters
+            </Button>
+          </div>
+
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Search
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search college..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 h-10"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Course
+            </label>
+            <Select value={course} onValueChange={setCourse}>
+              <SelectTrigger className="h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Courses</SelectItem>
+                {availableCourses.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              District
+            </label>
+            <Select value={district} onValueChange={setDistrict}>
+              <SelectTrigger className="h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(DISTRICT_CODE_TO_NAME).map(([code, name]) => (
+                  <SelectItem key={code} value={code}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Chances
+            </label>
+            <Select value={chances} onValueChange={setChances}>
+              <SelectTrigger className="h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Round
+            </label>
+            <Select value={round} onValueChange={setRound}>
+              <SelectTrigger className="h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="1">Round 1</SelectItem>
+                <SelectItem value="2">Round 2</SelectItem>
+                <SelectItem value="3">Round 3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+        </div>
+
       </CardContent>
     </Card>
+
   )
 }

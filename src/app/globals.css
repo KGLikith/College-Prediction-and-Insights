@@ -131,3 +131,40 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+html {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+html::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
+/* Thin neutral scrollbar */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #a3a3a3; /* neutral-400 */
+  border-radius: 9999px;
+}
+
+.dark .thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #525252; /* neutral-600 */
+}

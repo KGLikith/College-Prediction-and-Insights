@@ -104,7 +104,6 @@ const CollegeDetailPage = () => {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {isLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
@@ -116,13 +115,11 @@ const CollegeDetailPage = () => {
                 title="Total Courses"
                 value={courseList.length}
                 icon={BookOpen}
-                // subtitle="Offered at this college"
               />
               <StatCard
                 title="Top Course"
                 value={courseList[0]?.courseName || "-"}
                 icon={Trophy}
-                // subtitle="Highest ranked"
               />
               <StatCard
                 title="Lowest Cutoff"
@@ -130,7 +127,6 @@ const CollegeDetailPage = () => {
                   ...cutoffList.map((c) => c.minRank)
                 ).toLocaleString()}
                 icon={TrendingDown}
-                // subtitle="Easiest to get"
               />
               <StatCard
                 title="Highest Cutoff"
@@ -138,13 +134,11 @@ const CollegeDetailPage = () => {
                   ...cutoffList.map((c) => c.minRank)
                 ).toLocaleString()}
                 icon={GraduationCap}
-                // subtitle="Most competitive"
               />
             </>
           )}
         </div>
 
-        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="courses">Courses</TabsTrigger>

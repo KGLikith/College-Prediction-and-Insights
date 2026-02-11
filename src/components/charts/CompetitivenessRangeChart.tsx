@@ -21,12 +21,10 @@ export const CompetitivenessRangeChart = ({
   colleges,
   title = "Course Competitiveness Range",
 }: CompetitivenessRangeChartProps) => {
-  // Truncate college names for display
   const truncateCollegeName = (name: string, maxLength: number = 32) => {
     return name.length > maxLength ? name.substring(0, maxLength) + "..." : name
   }
 
-  // Transform data to show range visualization
   const data = colleges.slice(0, 12).map((college) => ({
     college: truncateCollegeName(college.collegeName),
     fullName: college.collegeName,
@@ -38,7 +36,6 @@ export const CompetitivenessRangeChart = ({
     id: `${college.collegeID}-${college.collegeName}`,
   }))
 
-  // Sort by mostRank (top rank) in ascending order - best colleges first
   data.sort((a, b) => a.mostRank - b.mostRank)
 
   if (data.length === 0) {
@@ -136,7 +133,6 @@ export const CompetitivenessRangeChart = ({
               }}
             />
 
-            {/* Single continuous bar showing the full range */}
             <Bar
               dataKey="leastRank"
               fill="#6366f1"
@@ -148,7 +144,6 @@ export const CompetitivenessRangeChart = ({
           </BarChart>
         </ResponsiveContainer>
 
-        {/* Legend and insights */}
         <div className="mt-6 pt-4 border-t space-y-3">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Understanding the chart</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">

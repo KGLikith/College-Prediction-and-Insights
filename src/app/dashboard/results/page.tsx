@@ -150,7 +150,7 @@ export default function FlatResults() {
   /* ---------- STATES ---------- */
   if (loading)
     return (
-      <div className="flex justify-center py-24">
+      <div className="flex justify-center py-24 items-cen">
         <RefreshCw className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
@@ -173,8 +173,7 @@ export default function FlatResults() {
     )
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* HEADER */}
+    <div className="max-w-7xl mx-auto space-y-8 pt-8 ">
       <div className="flex justify-between">
         <Button variant="outline" onClick={() => router.push("/dashboard")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -190,7 +189,6 @@ export default function FlatResults() {
         </div>
       </div>
 
-      {/* META */}
       <Card className="bg-muted/30">
         <CardContent className="py-3 flex gap-6 text-sm">
           <span>Exam: <b>{examType.toUpperCase()}</b></span>
@@ -211,70 +209,66 @@ export default function FlatResults() {
         </section>
       )}
 
-      {/* STATS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Colleges" value={filteredColleges.length} icon={Building2} />
-        <StatCard title="High Chance" value={high} icon={Award} />
-        <StatCard title="Medium Chance" value={medium} icon={Target} />
-        <StatCard title="Low Chance" value={low} icon={TrendingUp} />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChanceDonutChart colleges={filteredColleges} />
         <RankComparisonChart colleges={filteredColleges} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <ResultsFilter
-          collegeCount={filteredColleges.length}
-          onSearchChange={(v: string) =>
-            setFilters((f) => ({ ...f, search: v }))
-          }
-          onCourseFilter={(v: string) =>
-            setFilters((f) => ({ ...f, course: v }))
-          }
-          onChancesFilter={(v: string) =>
-            setFilters((f) => ({ ...f, chances: v }))
-          }
-          onRoundFilter={(v: string) =>
-            setFilters((f) => ({
-              ...f,
-              round: v === "all" ? null : Number(v),
-            }))
-          }
-          onDistrictFilter={(v) => setFilters((f) => ({ ...f, district: v }))}
-          onClearFilters={() =>
-            setFilters({
-              search: "",
-              course: "all",
-              chances: "all",
-              round: null,
-              district: "ALL"
-            })
-          }
-        />
+      <ResultsFilter
+        collegeCount={filteredColleges.length}
+        initialValues={{
+          search: filters.search,
+          course: filters.course,
+          chances: filters.chances,
+          round: filters.round ? filters.round.toString() : "all",
+          district: filters.district,
+        }}
+        onApplyFilters={(newFilters) => {
+          setPage(1)
+          setFilters({
+            search: newFilters.search,
+            course: newFilters.course,
+            chances: newFilters.chances,
+            round:
+              newFilters.round === "all"
+                ? null
+                : Number(newFilters.round),
+            district: newFilters.district,
+          })
+        }}
+        onClearFilters={() => {
+          setPage(1)
+          setFilters({
+            search: "",
+            course: "all",
+            chances: "all",
+            round: null,
+            district: "ALL",
+          })
+        }}
+      />
 
-        <div className="lg:col-span-4">
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <CollegeTable colleges={filteredColleges} title="All Results" />
-          )}
+      <div>
+        {loading ? (
+          <TableSkeleton />
+        ) : (
+          <CollegeTable colleges={filteredColleges} title="All Results" />
+        )}
 
-          <div className="flex justify-center gap-4 mt-4">
-            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-              Prev
-            </Button>
-            <span>Page {page}</span>
-            <Button
-              disabled={!results.hasMore}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </Button>
-          </div>
+        <div className="flex justify-center gap-4 mt-6">
+          <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+            Prev
+          </Button>
+          <span className="text-sm font-medium">Page {page}</span>
+          <Button
+            disabled={!results.hasMore}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </Button>
         </div>
       </div>
+
     </div>
   )
 }

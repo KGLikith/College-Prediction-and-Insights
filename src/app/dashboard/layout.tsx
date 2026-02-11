@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import { motion } from "framer-motion"
 import Header from "@/components/header"
 
@@ -9,14 +11,15 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
+
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 scrollbar-hidden overflow-y-auto">
       <Header />
 
       <motion.main
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6"
+        className="w-full"
       >
         {children}
       </motion.main>

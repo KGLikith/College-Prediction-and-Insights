@@ -1,3 +1,5 @@
+"use client"
+
 import {
   BarChart,
   Bar,
@@ -35,9 +37,9 @@ export const RankComparisonChart = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-bold">{title}</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
-        <CardContent className="h-[400px] flex items-center justify-center text-muted-foreground">
+        <CardContent className="h-[420px] flex items-center justify-center text-muted-foreground">
           No data available
         </CardContent>
       </Card>
@@ -45,92 +47,57 @@ export const RankComparisonChart = ({
   }
 
   return (
-    <Card className="shadow-lg border-2 w-full">
-      <CardHeader>
-        <CardTitle className="text-lg font-bold">{title}</CardTitle>
+    <Card className="border shadow-md">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg font-semibold">
+          {title}
+        </CardTitle>
       </CardHeader>
 
-      <CardContent className="w-full">
-        <ResponsiveContainer width="100%" height={460}>
+      <CardContent className="pt-0">
+        <ResponsiveContainer width="100%" height={440}>
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ top: 10, right: 10, left: 20, bottom: 10 }}
+            margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
 
             <XAxis
               type="number"
               tickFormatter={(v) => v.toLocaleString()}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
 
-            {/* ✅ LEFT-ALIGNED, TRUNCATED COURSE NAMES */}
             <YAxis
               dataKey="courseShort"
               type="category"
-              width={260}
+              width={240}
               tickLine={false}
-              tick={({ x, y, payload }) => (
-                <text
-                  x={x - 6}
-                  y={y}
-                  dy={4}
-                  textAnchor="end"
-                  fill="#6b7280"
-                  fontSize={12}
-                >
-                  {payload.value}
-                </text>
-              )}
+              axisLine={false}
+              tick={{
+                fill: "hsl(var(--muted-foreground))",
+                fontSize: 12,
+              }}
             />
 
-            {/* ✅ WHITE, LEFT-ALIGNED TOOLTIP */}
             <Tooltip
               cursor={{ fill: "transparent" }}
               content={({ active, payload }) => {
                 if (!active || !payload || !payload.length) return null
-
                 const d = payload[0].payload
 
                 return (
-                  <div
-                    style={{
-                      backgroundColor: "#ffffff",
-                      color: "#000000",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      padding: "12px",
-                      boxShadow:
-                        "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
-                      maxWidth: "360px",
-                      textAlign: "left",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontWeight: 600,
-                        fontSize: "13px",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      {d.course}
-                    </p>
-
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "#4b5563",
-                        marginBottom: "8px",
-                      }}
-                    >
+                  <div className="bg-background text-foreground border rounded-lg p-3 shadow-md max-w-sm text-sm">
+                    <p className="font-semibold mb-1">{d.course}</p>
+                    <p className="text-muted-foreground text-xs mb-2">
                       {d.college}
                     </p>
-
-                    <p style={{ fontSize: "13px" }}>
-                      <strong>Cutoff Rank:</strong>{" "}
+                    <p>
+                      <strong>Cutoff:</strong>{" "}
                       {d.cutoffRank.toLocaleString()}
                     </p>
-                    <p style={{ fontSize: "13px" }}>
+                    <p>
                       <strong>GM Rank:</strong>{" "}
                       {d.gmRank.toLocaleString()}
                     </p>

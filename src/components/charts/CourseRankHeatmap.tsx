@@ -55,12 +55,10 @@ export const CourseRankHeatmap = ({
     )
   }
 
-  // Extract ranks and find max for tier calculation
   const ranks = courses.map(c => c.courseRank)
   const maxRank = Math.max(...ranks)
   const minRank = Math.min(...ranks)
 
-  // Group courses by tier
   const tieredCourses = courses.map(course => ({
     ...course,
     tier: getTier(course.courseRank, maxRank),
@@ -89,7 +87,6 @@ export const CourseRankHeatmap = ({
                 borderLeftColor: style.bg,
               }}
             >
-              {/* Background heatmap indicator */}
               <div
                 className={`absolute inset-0 ${style.bg} opacity-5`}
                 style={{
@@ -127,7 +124,6 @@ export const CourseRankHeatmap = ({
         {middleTier.length > 0 && renderTierSection("middle", middleTier)}
         {bottomTier.length > 0 && renderTierSection("bottom", bottomTier)}
 
-        {/* Legend */}
         <div className="border-t pt-4 mt-4">
           <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">How to read this heatmap</p>
           <div className="grid grid-cols-3 gap-4 text-sm">

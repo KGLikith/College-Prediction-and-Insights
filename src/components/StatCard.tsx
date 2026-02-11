@@ -41,19 +41,17 @@ export const StatCard = ({
     <Card
       className={cn(
         "border-0 hover:shadow-lg transition-all duration-300 overflow-hidden group",
-        "max-w-[260px]", // 🔒 card width constraint
+        "max-w-[260px]", 
         styles.bg,
         className
       )}
     >
       <CardContent className="flex items-center justify-between p-5">
         <div className="space-y-1 max-w-[170px]">
-          {/* Truncated Title */}
           <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider truncate">
             {title}
           </p>
 
-          {/* Truncated Value */}
           <p className="text-md font-bold tracking-tight truncate">
             {value}
           </p>

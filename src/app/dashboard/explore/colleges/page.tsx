@@ -54,7 +54,6 @@ const CollegesPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold text-foreground">
             Explore Colleges
@@ -64,7 +63,6 @@ const CollegesPage = () => {
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {isLoading ? (
             Array.from({ length: 4 }).map((_, i) => (

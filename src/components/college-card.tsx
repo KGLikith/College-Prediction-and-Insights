@@ -1,9 +1,25 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Target, Users, TrendingUp, GraduationCap } from "lucide-react"
+import {
+  Calendar,
+  Target,
+  Users,
+  TrendingUp,
+  GraduationCap,
+} from "lucide-react"
 import { type College, getCourseCode } from "@/lib/types"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface CollegeCardProps {
   college: College
@@ -12,75 +28,102 @@ interface CollegeCardProps {
 export function CollegeCard({ college }: CollegeCardProps) {
   const courseCode = getCourseCode(college.course)
 
-  const cleanCollegeName = college.collegeName.split(",")[0].trim()
-  const collegeLocation = college.collegeName.includes(",")
-    ? college.collegeName.split(",").slice(1).join(",").trim()
-    : ""
-
   return (
-    <Card className="h-full transition-all duration-200 hover:shadow-md border-l-4 border-l-primary/20">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-base font-semibold text-foreground leading-tight line-clamp-2">
-              {cleanCollegeName}
-            </CardTitle>
-            {collegeLocation && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{collegeLocation}</p>}
+    <Card className="h-full overflow-hidden transition-all hover:shadow-md border-l-4 border-l-primary/20">
+
+      {/* HEADER */}
+      <CardHeader className="space-y-3 overflow-hidden">
+
+        {/* ✅ COLLEGE NAME (ONLY TRUNCATED ROW) */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <h3 className="text-base font-semibold truncate w-full">
+                {college.collegeName}
+              </h3>
+            </TooltipTrigger>
+
+            <TooltipContent
+              side="top"
+              className="max-w-sm break-words"
+            >
+              {college.collegeName}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* ✅ COURSE + COLLEGE ID ROW */}
+        <div className="flex items-center justify-between gap-4 min-w-0">
+
+          {/* LEFT SIDE: Course */}
+          <div className="flex items-center gap-2 min-w-0">
+            <GraduationCap className="h-4 w-4 shrink-0 text-muted-foreground" />
+
+            <span className="truncate text-sm text-muted-foreground">
+              {college.course}
+            </span>
+
+            <Badge
+              variant="secondary"
+              className="text-xs shrink-0"
+            >
+              {courseCode}
+            </Badge>
           </div>
-          <Badge variant="outline" className="text-xs font-mono shrink-0">
+
+          {/* RIGHT SIDE: College ID */}
+          <Badge
+            variant="outline"
+            className="text-xs font-mono shrink-0"
+          >
             {college.collegeID}
           </Badge>
-        </div>
-        <CardDescription className="text-sm leading-tight">
-          <div className="flex items-center gap-2 mb-2">
-            <GraduationCap className="h-4 w-4 shrink-0" />
-            <span className="line-clamp-2">{college.course}</span>
-          </div>
-          <Badge variant="secondary" className="text-xs">
-            {courseCode}
-          </Badge>
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3 pt-0">
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">Category</span>
-          </div>
-          <Badge variant="secondary" className="justify-self-end text-xs">
-            {college.category}
-          </Badge>
+
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">Round</span>
+      </CardHeader>
+
+      {/* BODY */}
+      <CardContent className="space-y-3 pt-0 text-sm">
+
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Users className="h-4 w-4" />
+            Category
           </div>
-          <span className="text-sm font-medium justify-self-end">
+          <Badge variant="secondary">{college.category}</Badge>
+        </div>
+
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            Round
+          </div>
+          <span className="font-medium">
             R{college.round}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">Cutoff Rank</span>
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Target className="h-4 w-4" />
+            Cutoff Rank
           </div>
-          <span className="text-sm font-bold text-destructive justify-self-end">
+          <span className="font-bold text-destructive">
             {college.cutoffRank.toLocaleString()}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">GM Rank</span>
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <TrendingUp className="h-4 w-4" />
+            GM Rank
           </div>
-          <span className="text-sm font-medium text-green-600 dark:text-green-400 justify-self-end">
+          <span className="font-medium text-green-600 dark:text-green-400">
             {college.gmRank.toLocaleString()}
           </span>
         </div>
+
       </CardContent>
     </Card>
   )

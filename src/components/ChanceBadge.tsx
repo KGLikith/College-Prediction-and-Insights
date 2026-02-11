@@ -8,9 +8,14 @@ interface ChanceBadgeProps {
 }
 
 const chanceStyles: Record<Chance, string> = {
-  high: "bg-chart-high/15 text-chart-high border-chart-high/30 font-semibold",
-  medium: "bg-chart-medium/15 text-chart-medium border-chart-medium/30 font-semibold",
-  low: "bg-chart-low/15 text-chart-low border-chart-low/30 font-semibold",
+  high:
+    "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
+
+  medium:
+    "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800",
+
+  low:
+    "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800",
 }
 
 const chanceLabels: Record<Chance, string> = {
@@ -23,9 +28,9 @@ export const ChanceBadge = ({ chance, className }: ChanceBadgeProps) => {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border-2 shadow-sm transition-all duration-200 hover:scale-105",
+        "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
         chanceStyles[chance],
-        className,
+        className
       )}
     >
       {chanceLabels[chance]}

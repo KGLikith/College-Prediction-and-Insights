@@ -51,10 +51,10 @@ export const CutoffDivergingChart = ({
           typeof c.minRank === "number"
       )
       .map((course) => ({
-        courseKey: course.courseName, // ✅ UNIQUE, NEVER TRUNCATED
+        courseKey: course.courseName, 
         fullCourseName: course.courseName,
-        cutoffRank: -course.courseRank, // left side
-        minRank: course.minRank, // right side
+        cutoffRank: -course.courseRank, 
+        minRank: course.minRank, 
       }))
   }, [courses])
 
@@ -76,7 +76,6 @@ export const CutoffDivergingChart = ({
           >
             <CartesianGrid strokeDasharray="4 4" vertical={false} />
 
-            {/* Center reference */}
             <ReferenceLine x={0} stroke="#9ca3af" strokeDasharray="3 3" />
 
             <XAxis
@@ -87,7 +86,7 @@ export const CutoffDivergingChart = ({
             />
 
             <YAxis
-              dataKey="courseKey" // ✅ UNIQUE KEY
+              dataKey="courseKey" 
               type="category"
               width={180}
               tickLine={false}
@@ -129,7 +128,6 @@ export const CutoffDivergingChart = ({
               }}
             />
 
-            {/* Cutoff Rank (left) */}
             <Bar
               dataKey="cutoffRank"
               fill="#3b82f6"
@@ -138,7 +136,6 @@ export const CutoffDivergingChart = ({
               name="Cutoff Rank"
             />
 
-            {/* Minimum Rank (right) */}
             <Bar
               dataKey="minRank"
               fill="#a855f7"

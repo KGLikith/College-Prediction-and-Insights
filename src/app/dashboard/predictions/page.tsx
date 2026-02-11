@@ -45,14 +45,6 @@ export default function PredictionsPage() {
   const [page, setPage] = useState(1)
   const [limit] = useState(25)
 
-  const [filters, setFilters] = useState({
-    search: "",
-    course: "all",
-    chances: "all",
-    round: "all",
-    district: "ALL",
-  })
-
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -64,6 +56,16 @@ export default function PredictionsPage() {
   const userRank = searchParams.get("rank")
   const userCategory = searchParams.get("cat")
 
+  const initialFilters = {
+    search: searchParams.get("search") || "",
+    course: searchParams.get("course") || "all",
+    chances: searchParams.get("chances") || "all",
+    round: searchParams.get("round") || "all",
+    district: searchParams.get("district") || "ALL",
+  }
+
+  const [filters, setFilters] = useState(initialFilters)
+
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
@@ -71,10 +73,16 @@ export default function PredictionsPage() {
         setError(null)
 
         const queryParams = new URLSearchParams()
-        searchParams.forEach((v, k) => queryParams.append(k, v))
+
+        if (examType) queryParams.set("exam", examType)
+        if (userRank) queryParams.set("rank", userRank)
+        if (userCategory) queryParams.set("cat", userCategory)
 
         queryParams.set("page", page.toString())
         queryParams.set("limit", limit.toString())
+
+        if (filters.search)
+          queryParams.set("search", filters.search)
 
         if (filters.course !== "all")
           queryParams.set("course", getCourseCode(filters.course))
@@ -103,7 +111,8 @@ export default function PredictionsPage() {
     }
 
     fetchPredictions()
-  }, [examType, searchParams, page, limit, filters])
+  }, [examType, page, limit, filters])
+
 
   const colleges: College[] = results?.colleges ?? []
 
@@ -150,17 +159,17 @@ export default function PredictionsPage() {
     )
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto p-6">
+    <div className="space-y-8 max-w-7xl mx-auto p-6 pt-6">
       <div className="flex justify-between items-center">
         <Button variant="outline" onClick={() => router.push("/dashboard")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
         </Button>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm">
+          {/* <Button variant="outline" size="sm">
             <Share2 className="mr-2 h-4 w-4" />
             Share
-          </Button>
+          </Button> */}
           <Button variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
             Export CSV
@@ -188,13 +197,6 @@ export default function PredictionsPage() {
         </div>
       )}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Colleges" value={filteredColleges.length} icon={Building2} />
-        <StatCard title="High Chance" value={high} icon={Award} />
-        <StatCard title="Medium Chance" value={medium} icon={Target} />
-        <StatCard title="Low Chance" value={low} icon={TrendingUp} />
-      </div>
-
       <div className="grid lg:grid-cols-2 gap-8">
         <ChanceDonutChart colleges={filteredColleges} />
         <RankComparisonChart colleges={filteredColleges} />
@@ -202,12 +204,13 @@ export default function PredictionsPage() {
 
       <ResultsFilter
         collegeCount={filteredColleges.length}
-        onSearchChange={(v) => setFilters((f) => ({ ...f, search: v }))}
-        onCourseFilter={(v) => setFilters((f) => ({ ...f, course: v }))}
-        onChancesFilter={(v) => setFilters((f) => ({ ...f, chances: v }))}
-        onRoundFilter={(v) => setFilters((f) => ({ ...f, round: v }))}
-        onDistrictFilter={(v) => setFilters((f) => ({ ...f, district: v }))}
-        onClearFilters={() =>
+        initialValues={filters}
+        onApplyFilters={(newFilters) => {
+          setPage(1)
+          setFilters(newFilters)
+        }}
+        onClearFilters={() => {
+          setPage(1)
           setFilters({
             search: "",
             course: "all",
@@ -215,13 +218,29 @@ export default function PredictionsPage() {
             round: "all",
             district: "ALL",
           })
-        }
+        }}
       />
+
 
       {loading ? (
         <TableSkeleton />
       ) : (
-        <CollegeTable colleges={filteredColleges} title="All Predictions" />
+        <>
+          <CollegeTable colleges={filteredColleges} title="All Predictions" />
+          
+          <div className="flex justify-center gap-4 mt-6">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Prev
+            </Button>
+            <span className="text-sm font-medium">Page {page}</span>
+            <Button
+              disabled={!results.hasMore}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </>
       )}
     </div>
   )

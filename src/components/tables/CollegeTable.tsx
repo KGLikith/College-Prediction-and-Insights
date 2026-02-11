@@ -9,20 +9,29 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface CollegeTableProps {
   colleges: College[]
   title?: string
 }
 
-export const CollegeTable = ({ colleges, title = "Results" }: CollegeTableProps) => {
+export const CollegeTable = ({
+  colleges,
+  title = "All Predictions",
+}: CollegeTableProps) => {
   if (colleges.length === 0) {
     return (
-      <Card className="animate-fade-in shadow-lg">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-bold">{title}</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-[200px] text-muted-foreground">
+        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground">
           No results found
         </CardContent>
       </Card>
@@ -30,20 +39,49 @@ export const CollegeTable = ({ colleges, title = "Results" }: CollegeTableProps)
   }
 
   return (
-    <Card className="animate-fade-in shadow-lg border-2 pt-0">
-      <CardContent className="p-0">
-        <div className="rounded-lg border-2 border-border overflow-hidden">
-          <Table>
+    <Card className="shadow-md border">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-lg font-semibold">
+          {title}
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className="p-0 px-1">
+        <div className="overflow-x-hidden rounded-lg border">
+          <Table className="table-fixed w-full">
             <TableHeader>
-              <TableRow className="bg-muted/60 hover:bg-muted/60">
-                <TableHead className="font-bold text-foreground">College ID</TableHead>
-                <TableHead className="font-bold text-foreground">College Name</TableHead>
-                <TableHead className="font-bold text-foreground">Course</TableHead>
-                <TableHead className="font-bold text-foreground text-center">Category</TableHead>
-                <TableHead className="font-bold text-foreground text-center">Round</TableHead>
-                <TableHead className="font-bold text-foreground text-right">Cutoff Rank</TableHead>
-                <TableHead className="font-bold text-foreground text-right">GM Rank</TableHead>
-                <TableHead className="font-bold text-foreground text-center">Chances</TableHead>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[90px] px-4 py-3 text-sm font-semibold">
+                  ID
+                </TableHead>
+
+                <TableHead className="w-[260px] px-4 py-3 text-sm font-semibold">
+                  College Name
+                </TableHead>
+
+                <TableHead className="w-[140px] px-4 py-3 text-sm font-semibold">
+                  Course
+                </TableHead>
+
+                <TableHead className="w-[90px] px-4 py-3 text-sm font-semibold text-center">
+                  Cat
+                </TableHead>
+
+                <TableHead className="w-[80px] px-4 py-3 text-sm font-semibold text-center">
+                  Round
+                </TableHead>
+
+                <TableHead className="w-[120px] px-4 py-3 text-sm font-semibold text-right">
+                  Cutoff
+                </TableHead>
+
+                <TableHead className="w-[120px] px-4 py-3 text-sm font-semibold text-right">
+                  GM Rank
+                </TableHead>
+
+                <TableHead className="w-[110px] px-4 py-3 text-sm font-semibold text-center">
+                  Chance
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -53,38 +91,47 @@ export const CollegeTable = ({ colleges, title = "Results" }: CollegeTableProps)
                   key={`${college.collegeID}-${index}`}
                   className="hover:bg-muted/40 transition-colors"
                 >
-                  <TableCell className="font-mono text-sm font-medium">
+                  <TableCell className="px-4 py-3 font-mono text-sm truncate">
                     {college.collegeID}
                   </TableCell>
 
-                  <TableCell className="font-semibold">
-                    {college.collegeName}
+                  <TableCell className="px-4 py-3 font-medium truncate">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="block truncate cursor-default">
+                            {college.collegeName}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-sm">
+                          {college.collegeName}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
 
-                  <TableCell className="text-muted-foreground font-medium">
+                  <TableCell className="px-4 py-3 text-muted-foreground truncate">
                     {college.course}
                   </TableCell>
 
-                  <TableCell className="text-center font-semibold">
+                  <TableCell className="px-4 py-3 text-center">
                     {college.category}
                   </TableCell>
 
-                  <TableCell className="text-center font-medium">
+                  <TableCell className="px-4 py-3 text-center">
                     {college.round}
                   </TableCell>
 
-                  <TableCell className="text-right font-mono font-medium">
+                  <TableCell className="px-4 py-3 text-right font-mono">
                     {college.cutoffRank.toLocaleString()}
                   </TableCell>
 
-                  <TableCell className="text-right font-mono font-medium">
+                  <TableCell className="px-4 py-3 text-right font-mono">
                     {college.gmRank.toLocaleString()}
                   </TableCell>
 
-                  <TableCell className="text-center">
-                    <div className="flex justify-center">
-                      <ChanceBadge chance={college.chances} />
-                    </div>
+                  <TableCell className="px-4 py-3 text-center">
+                    <ChanceBadge chance={college.chances} />
                   </TableCell>
                 </TableRow>
               ))}

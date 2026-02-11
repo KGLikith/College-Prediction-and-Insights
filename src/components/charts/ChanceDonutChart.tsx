@@ -24,15 +24,12 @@ export const ChanceDonutChart = ({
   colleges,
   title = "Chance Distribution",
 }: ChanceDonutChartProps) => {
-  // 1️⃣ Count occurrences
   const highCount = colleges.filter((c) => c.chances === "high").length
   const mediumCount = colleges.filter((c) => c.chances === "medium").length
   const lowCount = colleges.filter((c) => c.chances === "low").length
 
-  // 2️⃣ Total count
   const total = highCount + mediumCount + lowCount
 
-  // 3️⃣ Build data safely
   const data =
     total === 0
       ? []

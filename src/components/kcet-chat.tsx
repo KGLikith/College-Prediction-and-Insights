@@ -1,9 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2 } from "lucide-react"
+import { Loader2, Menu, X } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface Message {
   role: "user" | "assistant"
@@ -17,13 +20,15 @@ const PRESET_QUESTIONS = [
 ]
 
 const STORAGE_KEY = "kcet_chat_history"
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://143.244.135.13:3000"
 
-export default function KCETChat() {
+export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [question, setQuestion] = useState("")
   const [loading, setLoading] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   /* Load chat history */
   useEffect(() => {
@@ -37,11 +42,19 @@ export default function KCETChat() {
     }
   }, [])
 
-  /* Persist chat history */
+  /* Save + Auto scroll */
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
+
+  /* Auto-expand textarea */
+  useEffect(() => {
+    if (!textareaRef.current) return
+    textareaRef.current.style.height = "auto"
+    textareaRef.current.style.height =
+      textareaRef.current.scrollHeight + "px"
+  }, [question])
 
   const askQuestion = async (q: string) => {
     if (!q.trim()) return
@@ -53,33 +66,24 @@ export default function KCETChat() {
     try {
       const res = await fetch(`/api/predictions/kcet/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q }),
       })
 
-      if (!res.ok) {
-        throw new Error("Failed request")
-      }
+      if (!res.ok) throw new Error("Failed request")
 
       const data = await res.json()
 
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          text: data?.answer ?? "No answer returned.",
-        },
+        { role: "assistant", text: data?.answer ?? "No answer returned." },
       ])
-    } catch (error) {
-      console.error("Chat error:", error)
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text:
-            "Sorry, I couldn’t fetch an answer right now. Please try again.",
+          text: "Sorry, I couldn't fetch an answer right now.",
         },
       ])
     } finally {
@@ -88,93 +92,169 @@ export default function KCETChat() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto h-screen md:h-auto md:max-h-[650px] flex flex-col px-4 py-4 space-y-4">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">
+    <div className="flex h-[calc(100vh-64px)] w-full bg-neutral-50 dark:bg-neutral-950">
+
+      <div className="fixed left-0 right-0 top-16 z-30 flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950 lg:hidden">
+        <button onClick={() => setSidebarOpen(true)}>
+          <Menu className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
+        </button>
+        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
           KCET Assistant
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Ask questions about KCET counselling
+        </p>
+        <div />
+      </div>
+
+      <div className="hidden w-80 border-r border-neutral-200 dark:border-neutral-800 lg:flex">
+        <Sidebar askQuestion={askQuestion} />
+      </div>
+
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+            />
+            <motion.div
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              transition={{ type: "tween", duration: 0.25 }}
+              className="fixed left-0 top-0 z-50 h-full w-72 bg-neutral-50 shadow-xl dark:bg-neutral-950 lg:hidden"
+            >
+              <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
+                <p className="font-semibold text-neutral-900 dark:text-neutral-50">
+                  KCET Assistant
+                </p>
+                <button onClick={() => setSidebarOpen(false)}>
+                  <X className="h-5 w-5 text-neutral-800 dark:text-neutral-200" />
+                </button>
+              </div>
+
+              <Sidebar
+                askQuestion={(q) => {
+                  askQuestion(q)
+                  setSidebarOpen(false)
+                }}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-1 flex-col pt-16 lg:pt-0">
+        <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6">
+          <div className="mx-auto max-w-2xl space-y-4">
+            {messages.map((m, idx) => (
+              <div
+                key={idx}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-xs rounded-2xl px-4 py-3 text-sm shadow-sm sm:max-w-sm ${m.role === "user"
+                    ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900"
+                    : "bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50"
+                    }`}
+                >
+                  {m.role === "assistant" ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert prose-neutral [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {m.text}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.text
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-2 rounded-2xl bg-neutral-200 px-4 py-3 dark:bg-neutral-800">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">Thinking...</span>
+                </div>
+              </div>
+            )}
+
+            <div ref={bottomRef} />
+          </div>
+        </div>
+
+        <div className="border-t border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950">
+          <div className="mx-auto max-w-2xl">
+            <div className="flex items-end gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
+
+              <Textarea
+                ref={textareaRef}
+                placeholder="Ask a KCET-related question..."
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && e.ctrlKey && !loading) {
+                    e.preventDefault()
+                    askQuestion(question)
+                  }
+                }}
+                className="max-h-40 min-h-[36px] flex-1 resize-none border-0 bg-transparent p-0 text-sm focus-visible:ring-0"
+              />
+
+              <Button
+                size="sm"
+                disabled={!question.trim() || loading}
+                onClick={() => askQuestion(question)}
+                className="h-8 px-3 text-xs bg-neutral-900 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Send"
+                )}
+              </Button>
+            </div>
+
+            <p className="mt-1 text-[10px] text-neutral-500">
+              Ctrl + Enter to send
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Sidebar({ askQuestion }: { askQuestion: (q: string) => void }) {
+  return (
+    <div className="flex h-full flex-col p-4">
+      <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+          KCET Assistant
+        </h2>
+        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          Ask questions about counselling
         </p>
       </div>
 
-      {messages.length === 0 && (
-        <div className="space-y-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-            Frequently asked questions
-          </p>
-
-          <div className="grid gap-2">
-            {PRESET_QUESTIONS.map((q) => (
-              <Button
-                key={q}
-                variant="outline"
-                className="justify-start text-left h-auto p-3"
-                onClick={() => askQuestion(q)}
-              >
-                {q}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="flex-1 border rounded-lg p-4 overflow-y-auto space-y-3 bg-muted/30">
-        {messages.map((m, idx) => (
-          <div
-            key={idx}
-            className={`flex ${
-              m.role === "user"
-                ? "justify-end"
-                : "justify-start"
-            }`}
-          >
-            <div
-              className={`max-w-xs lg:max-w-md rounded-lg px-4 py-2 text-sm ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary"
-              }`}
+      <div className="flex-1 overflow-y-auto p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          Suggested Questions
+        </p>
+        <div className="space-y-2">
+          {PRESET_QUESTIONS.map((q) => (
+            <Button
+              key={q}
+              variant="outline"
+              className="h-auto w-full justify-start whitespace-normal bg-transparent p-3 text-left text-sm leading-relaxed text-neutral-900 transition-all hover:border-neutral-300 hover:bg-neutral-100 dark:border-neutral-800 dark:text-neutral-50 dark:hover:border-neutral-700 dark:hover:bg-neutral-900"
+              onClick={() => askQuestion(q)}
             >
-              {m.text}
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-secondary rounded-lg px-4 py-2 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Thinking...
-            </div>
-          </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      <div className="space-y-3">
-        <Textarea
-          placeholder="Ask a KCET-related question..."
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          className="resize-none"
-        />
-
-        <Button
-          disabled={!question.trim() || loading}
-          onClick={() => askQuestion(question)}
-          className="w-full"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            "Ask Question"
-          )}
-        </Button>
+              {q}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   )

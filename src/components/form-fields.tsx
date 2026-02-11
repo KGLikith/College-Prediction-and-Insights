@@ -3,9 +3,21 @@
 import { useFormContext } from "react-hook-form"
 import { INDIAN_STATES, COURSE_CATEGORIES } from "@/lib/types"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form"
 
 type Props = {
   examType: "kcet" | "comedk" | "jee"
@@ -25,34 +37,35 @@ const ROUND_OPTIONS: Record<Props["examType"], string[]> = {
 
 export function FormFields({ examType }: Props) {
   const form = useFormContext()
-  if (!form || !("control" in form)) return null
+  if (!form) return null
 
   const isJEE = examType === "jee"
 
   return (
-    <div className="space-y-8 w-full">
-      <div className="grid grid-cols-6 gap-6">
+    <div className="w-full space-y-12">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+
         <FormField
           control={form.control}
           name="rank"
           render={({ field }) => (
-            <FormItem className="sm:col-span-2">
+            <FormItem>
               <FormLabel>
                 Rank <span className="text-destructive">*</span>
               </FormLabel>
               <FormControl>
                 <Input
                   type="number"
-                  className="w-1/2"
                   placeholder="Rank"
                   min={1}
                   value={field.value ?? ""}
                   onChange={(e) => {
-                    const val = e.target.value === "" ? undefined : Number(e.target.value)
+                    const val =
+                      e.target.value === "" ? undefined : Number(e.target.value)
                     field.onChange(val && val > 0 ? val : undefined)
                   }}
                 />
-                
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -63,7 +76,7 @@ export function FormFields({ examType }: Props) {
           control={form.control}
           name="category"
           render={({ field }) => (
-            <FormItem className="sm:col-span-3">
+            <FormItem>
               <FormLabel>
                 Category <span className="text-destructive">*</span>
               </FormLabel>
@@ -85,18 +98,18 @@ export function FormFields({ examType }: Props) {
             </FormItem>
           )}
         />
-      </div>
 
-      <div className="grid grid-cols-6 gap-6">
         <FormField
           control={form.control}
           name="round"
           render={({ field }) => (
-            <FormItem className="sm:col-span-2">
+            <FormItem>
               <FormLabel>Round</FormLabel>
               <Select
                 value={String(field.value || "ALL")}
-                onValueChange={(v) => field.onChange(v === "ALL" ? undefined : Number(v))}
+                onValueChange={(v) =>
+                  field.onChange(v === "ALL" ? undefined : Number(v))
+                }
               >
                 <FormControl>
                   <SelectTrigger>
@@ -121,11 +134,13 @@ export function FormFields({ examType }: Props) {
           control={form.control}
           name="course"
           render={({ field }) => (
-            <FormItem className="sm:col-span-4">
+            <FormItem>
               <FormLabel>Preferred Course</FormLabel>
               <Select
                 value={(field.value as string) || "ALL"}
-                onValueChange={(v) => field.onChange(v === "ALL" ? undefined : v)}
+                onValueChange={(v) =>
+                  field.onChange(v === "ALL" ? undefined : v)
+                }
               >
                 <FormControl>
                   <SelectTrigger>
@@ -134,11 +149,13 @@ export function FormFields({ examType }: Props) {
                 </FormControl>
                 <SelectContent className="max-h-72">
                   <SelectItem value="ALL">ALL</SelectItem>
-                  {Object.entries(COURSE_CATEGORIES).map(([code, name]) => (
-                    <SelectItem key={code} value={code}>
-                      {name} ({code})
-                    </SelectItem>
-                  ))}
+                  {Object.entries(COURSE_CATEGORIES).map(
+                    ([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name} ({code})
+                      </SelectItem>
+                    )
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -148,23 +165,33 @@ export function FormFields({ examType }: Props) {
       </div>
 
       {examType === "kcet" && (
-        <div className="space-y-3">
+        <div className="space-y-6">
           <div>
-            <h3 className="font-semibold">Additional KCET Details</h3>
-            <p className="text-sm text-muted-foreground">Select if any of these apply:</p>
+            <h3 className="font-semibold text-base">
+              Additional KCET Details
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Select if any apply
+            </p>
           </div>
-          <div className="grid grid-cols-5 gap-2">
+
+          <div className="flex gap-10">
             {["hk", "rural", "kannada"].map((name) => (
               <FormField
                 key={name}
                 control={form.control}
                 name={name as any}
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-2 space-y-0">
+                  <FormItem className="flex items-center gap-3 space-y-0">
                     <FormControl>
-                      <Checkbox checked={!!field.value} onCheckedChange={(c) => field.onChange(!!c)} />
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(c) => field.onChange(!!c)}
+                      />
                     </FormControl>
-                    <FormLabel className="font-normal capitalize">{name}</FormLabel>
+                    <FormLabel className="font-normal capitalize">
+                      {name}
+                    </FormLabel>
                   </FormItem>
                 )}
               />
@@ -173,24 +200,23 @@ export function FormFields({ examType }: Props) {
         </div>
       )}
 
-      {examType === "comedk" && (
-        <div>
-          <h3 className="font-semibold">Additional COMEDK Details</h3>
-          <p className="text-sm text-muted-foreground">No extra fields required.</p>
-        </div>
-      )}
-
       {isJEE && (
-        <div className="space-y-6">
-          <h3 className="font-semibold">Additional JEE Details</h3>
+        <div className="space-y-10">
 
-          <div className="grid grid-cols-6 gap-6">
+          <h3 className="font-semibold text-base">
+            Additional JEE Details
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
             <FormField
               control={form.control}
               name="state"
               render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>State <span className="text-destructive">*</span></FormLabel>
+                <FormItem>
+                  <FormLabel>
+                    State <span className="text-destructive">*</span>
+                  </FormLabel>
                   <Select value={field.value || ""} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
@@ -214,8 +240,10 @@ export function FormFields({ examType }: Props) {
               control={form.control}
               name="gender"
               render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Gender <span className="text-destructive">*</span></FormLabel>
+                <FormItem>
+                  <FormLabel>
+                    Gender <span className="text-destructive">*</span>
+                  </FormLabel>
                   <Select value={field.value || ""} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
@@ -232,49 +260,10 @@ export function FormFields({ examType }: Props) {
                 </FormItem>
               )}
             />
-          </div>
 
-          <div className="grid grid-cols-6 gap-6">
-            <FormField
-              control={form.control}
-              name="instituteType"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Institute Type <span className="text-destructive">*</span></FormLabel>
-                  <Select value={field.value || ""} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select institute type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="IIT">IIT</SelectItem>
-                      <SelectItem value="NIT">NIT</SelectItem>
-                      <SelectItem value="GFTIs">GFTIs</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="pwd"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2 space-y-0 sm:col-span-3 mt-8">
-                  <FormControl>
-                    <Checkbox checked={!!field.value} onCheckedChange={(c) => field.onChange(!!c)} />
-                  </FormControl>
-                  <FormLabel className="cursor-pointer">PWD</FormLabel>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
         </div>
       )}
     </div>
   )
 }
-
