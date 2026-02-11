@@ -5,7 +5,6 @@ export function CalendarTimeline({ items }: {
     <div className="space-y-4">
       {items.map((item, index) => (
         <div key={index} className="flex gap-4">
-          {/* Timeline Line */}
           <div className="flex flex-col items-center">
             <div className="h-3 w-3 rounded-full bg-neutral-900 dark:bg-neutral-50" />
             {index !== items.length - 1 && (
@@ -13,7 +12,6 @@ export function CalendarTimeline({ items }: {
             )}
           </div>
 
-          {/* Content */}
           <div className="flex-1 pb-4">
             <p className="text-xs text-neutral-500">
               Event {item.number}

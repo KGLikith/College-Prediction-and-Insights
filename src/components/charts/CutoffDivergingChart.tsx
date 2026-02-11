@@ -22,7 +22,7 @@ interface CutoffDivergingChartProps {
 
 export const CutoffDivergingChart = ({
   courses,
-  title = "Course-wise Rank Comparison",
+  title = "Course-wise Cut-off Rank Comparison",
 }: CutoffDivergingChartProps) => {
   if (!courses || courses.length === 0) {
     return (
@@ -46,10 +46,10 @@ export const CutoffDivergingChart = ({
           typeof c.minRank === "number"
       )
       .map((course) => ({
-        courseKey: course.courseName, 
+        courseKey: course.courseName,
         fullCourseName: course.courseName,
-        cutoffRank: -course.courseRank, 
-        minRank: course.minRank, 
+        cutoffRank: -course.courseRank,
+        minRank: course.minRank,
       }))
   }, [courses])
 
@@ -67,7 +67,7 @@ export const CutoffDivergingChart = ({
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ top: 10, right: 70, left: 200, bottom: 10 }}
+            margin={{ top: 10, right: 80, left: 80, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="4 4" vertical={false} />
 
@@ -77,11 +77,15 @@ export const CutoffDivergingChart = ({
               type="number"
               tickLine={false}
               axisLine={false}
+              domain={[
+                (dataMin: number) => dataMin,
+                (dataMax: number) => dataMax,
+              ]}
               tickFormatter={(v) => Math.abs(v).toLocaleString()}
             />
 
             <YAxis
-              dataKey="courseKey" 
+              dataKey="courseKey"
               type="category"
               width={180}
               tickLine={false}
@@ -100,11 +104,11 @@ export const CutoffDivergingChart = ({
                 const d = payload[0].payload
 
                 return (
-                  <div className="rounded-lg border bg-white p-4 shadow-lg max-w-sm">
-                    <p className="font-bold text-sm mb-2">
+                  <div className="rounded-lg border bg-background p-4 shadow-lg max-w-sm">
+                    <p className="font-bold text-sm mb-2 text-foreground">
                       {d.fullCourseName}
                     </p>
-                    <div className="space-y-1 text-sm">
+                    <div className="space-y-1 text-sm text-foreground">
                       <p>
                         <strong className="text-blue-600">
                           Cutoff Rank:
@@ -112,7 +116,7 @@ export const CutoffDivergingChart = ({
                         {Math.abs(d.cutoffRank).toLocaleString()}
                       </p>
                       <p>
-                        <strong className="text-purple-600">
+                        <strong className="text-purple-600 ">
                           Minimum Rank:
                         </strong>{" "}
                         {d.minRank.toLocaleString()}

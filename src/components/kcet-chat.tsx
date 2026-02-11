@@ -188,7 +188,6 @@ export default function ChatPage() {
               const isAssistant = m.role === "assistant";
               const calendar = isAssistant ? parseCalendarTable(m.text) : null;
               
-              console.log("Rendered assistant text:", m.text);
               return (
                 <div
                   key={idx}

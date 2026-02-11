@@ -19,8 +19,6 @@ export async function GET(
   try {
     const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/courses`;
 
-    console.log(`[API] Fetching courses for college: ${college_code}`);
-
     const response = await axios.get(apiUrl, {
       timeout: 10000,
       headers: {
@@ -28,8 +26,6 @@ export async function GET(
         "Content-Type": "application/json",
       },
     });
-
-    console.log(response.data)
 
     return NextResponse.json(response.data, {
       status: 200,

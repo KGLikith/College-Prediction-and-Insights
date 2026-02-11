@@ -22,9 +22,6 @@ export async function GET(
 
     const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/cutoffs?cat=${category}`;
 
-    console.log(
-      `[API] Fetching cutoffs for college: ${college_code}, category: ${category}`
-    );
 
     const response = await axios.get(apiUrl, {
       timeout: 10000,

@@ -1,6 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 interface StatCardProps {
   title: string
@@ -12,22 +19,23 @@ interface StatCardProps {
 
 const variantStyles = {
   default: {
-    bg: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900",
-    icon: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+    bg: "bg-blue-100 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-800",
+    icon: "bg-blue-200/70 dark:bg-blue-800/60 text-blue-700 dark:text-blue-300",
   },
   success: {
-    bg: "bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900",
-    icon: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800",
+    icon: "bg-emerald-200/70 dark:bg-emerald-800/60 text-emerald-700 dark:text-emerald-300",
   },
   warning: {
-    bg: "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900",
-    icon: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-100 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-800",
+    icon: "bg-amber-200/70 dark:bg-amber-800/60 text-amber-700 dark:text-amber-300",
   },
   info: {
-    bg: "bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-950 dark:to-violet-900",
-    icon: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
+    bg: "bg-violet-100 dark:bg-violet-900/40 border border-violet-200 dark:border-violet-800",
+    icon: "bg-violet-200/70 dark:bg-violet-800/60 text-violet-700 dark:text-violet-300",
   },
 }
+
 export const StatCard = ({
   title,
   value,
@@ -40,21 +48,46 @@ export const StatCard = ({
   return (
     <Card
       className={cn(
-        "border-0 hover:shadow-lg transition-all duration-300 overflow-hidden group",
-        "max-w-[260px]", 
+        "shadow-sm hover:shadow-md transition-all duration-300 group",
+        "w-full min-w-[280px] max-w-[340px]",
+
         styles.bg,
         className
       )}
     >
-      <CardContent className="flex items-center justify-between p-5">
+      <CardContent className="flex items-center justify-between pt-2 px-5">
         <div className="space-y-1 max-w-[170px]">
           <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider truncate">
             {title}
           </p>
 
-          <p className="text-md font-bold tracking-tight truncate">
-            {value}
-          </p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <p className="text-xl font-semibold tracking-tight truncate text-foreground cursor-default">
+                  {value}
+                </p>
+              </TooltipTrigger>
+              {typeof value === "string" && value.length > 25 && (
+                <TooltipContent
+                  side="top"
+                  className="
+                    bg-foreground
+                    text-background
+                    border border-border
+                    shadow-sm
+                    rounded-md
+                    px-3 py-2
+                    text-sm
+                  "
+                >
+                  {value}
+                </TooltipContent>
+
+              )}
+            </Tooltip>
+          </TooltipProvider>
+
         </div>
 
         <div

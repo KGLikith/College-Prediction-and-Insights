@@ -13,7 +13,6 @@ export async function GET(req: Request, context: { params: Promise<{ exam: strin
   try {
     const { searchParams } = new URL(req.url);
     const queryString = searchParams.toString();
-    console.log(`Fetching data for exam: ${exam} with params: ${queryString}`);
     const apiUrl = `${BACKEND_URL}/api/exams/${exam}?${queryString}&year=2024`;
 
     const response = await axios.get(apiUrl, {

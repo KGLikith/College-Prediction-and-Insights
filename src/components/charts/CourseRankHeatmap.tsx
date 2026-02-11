@@ -95,15 +95,12 @@ export const CourseRankHeatmap = ({
                 }}
               ></div>
 
-              <div className="relative z-10 space-y-2">
+              <div className="relative z-10 space-y-2 flex flex-col justify-between h-full">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-semibold text-sm leading-tight flex-1">{course.courseName}</p>
-                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${style.bg} font-bold text-white text-xs flex-shrink-0`}>
-                    {course.courseRank}
-                  </span>
                 </div>
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-xs text-muted-foreground">Rank</span>
+                  <span className="text-xs text-foreground">Rank</span>
                   <span className="text-xs font-semibold">{course.courseRank.toLocaleString()}</span>
                 </div>
               </div>
@@ -115,11 +112,11 @@ export const CourseRankHeatmap = ({
   }
 
   return (
-    <Card className="border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="bg-gradient-to-r from-emerald-50 to-red-50 dark:from-emerald-950 dark:to-red-950 border-b">
+    <Card className="border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow pt-0">
+      <CardHeader className="bg-neutral-100 dark:bg-neutral-800 border-b pt-3 pb-3">
         <CardTitle className="text-lg font-bold">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="pt-6 space-y-8">
+      <CardContent className="pt-2 space-y-4">
         {topTier.length > 0 && renderTierSection("top", topTier)}
         {middleTier.length > 0 && renderTierSection("middle", middleTier)}
         {bottomTier.length > 0 && renderTierSection("bottom", bottomTier)}

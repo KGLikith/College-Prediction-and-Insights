@@ -54,7 +54,7 @@ export const CompetitivenessRangeChart = ({
 
   return (
     <Card className="border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow pt-0">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-b">
+      <CardHeader className="bg-neutral-100 dark:bg-neutral-800 border-b pt-3 pb-3">
         <div className=" pt-4">
           <div className="flex items-center justify-between gap-4">
             <CardTitle className="text-lg font-bold">{title}</CardTitle>
@@ -68,7 +68,7 @@ export const CompetitivenessRangeChart = ({
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ top: 15, right: 30, left: 20, bottom: 15 }}
+            margin={{ top: 15, right: 100, left: 60, bottom: 15 }}
             barCategoryGap="15%"
           >
             <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" vertical={false} />
@@ -87,7 +87,7 @@ export const CompetitivenessRangeChart = ({
               tickLine={false}
               stroke="#6b7280"
               style={{ fontSize: "12px", fontWeight: 500 }}
-              tick={{ fill: "#374151", textAnchor: "end" }}
+              tick={{ fill: "currentColor", textAnchor: "end" }}
             />
 
             <Tooltip
@@ -150,21 +150,21 @@ export const CompetitivenessRangeChart = ({
             <div className="flex items-start gap-3">
               <div className="h-3 w-12 rounded bg-indigo-500 flex-shrink-0 mt-0.5"></div>
               <div>
-                <p className="font-medium text-slate-900">Range Bar</p>
+                <p className="font-medium text-slate-900 dark:text-zinc-100">Range Bar</p>
                 <p className="text-xs text-muted-foreground">Gap between most and least competitive courses</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <TrendingUp className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-slate-900">Most Competitive</p>
+                <p className="font-medium text-slate-900 dark:text-zinc-100">Most Competitive</p>
                 <p className="text-xs text-muted-foreground">Lowest rank requirement</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <TrendingDown className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-slate-900">Least Competitive</p>
+                <p className="font-medium text-slate-900 dark:text-zinc-100">Least Competitive</p>
                 <p className="text-xs text-muted-foreground">Highest rank requirement</p>
               </div>
             </div>

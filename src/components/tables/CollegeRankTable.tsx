@@ -39,7 +39,7 @@ export const CollegeRankTable = ({ colleges, title = "College Rankings" }: Colle
   if (colleges.length === 0) {
     return (
       <Card className="animate-fade-in border-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-        <CardHeader>
+        <CardHeader >
           <CardTitle className="text-lg font-bold">{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
@@ -55,9 +55,9 @@ export const CollegeRankTable = ({ colleges, title = "College Rankings" }: Colle
   }
 
   return (
-    <Card className="animate-fade-in border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-b">
-        <CardTitle className="text-lg font-bold">{title}</CardTitle>
+    <Card className="animate-fade-in border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow pt-0">
+      <CardHeader className="bg-neutral-100 dark:bg-neutral-800 border-b pt-3 pb-3">
+        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">

@@ -21,7 +21,6 @@ import { CollegeCourses, CollegeCutoffs, CourseWithCutoff } from "@/lib/types"
 import { DashboardLayout } from "../../DashboardLayout"
 import { CourseRankHeatmap } from "@/components/charts/CourseRankHeatmap"
 import { CourseTable } from "@/components/tables/CourseTable"
-import { CourseRankChart } from "@/components/charts/CourseRankChart" // Import CourseRankChart
 import { CutoffDivergingChart } from "@/components/charts/CutoffDivergingChart"
 
 const CollegeDetailPage = () => {
@@ -97,9 +96,6 @@ const CollegeDetailPage = () => {
               <h1 className="text-3xl font-bold text-foreground">
                 {courses?.collegeName || "Loading..."}
               </h1>
-              <p className="text-muted-foreground mt-1">
-                College ID: {collegeCode} • Category: {category}
-              </p>
             </div>
           </div>
         </div>
@@ -145,40 +141,26 @@ const CollegeDetailPage = () => {
             <TabsTrigger value="cutoffs">Cutoffs</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="courses" className="space-y-6 mt-6">
-            {isLoading ? (
-              <>
-                <ChartSkeleton />
-                <TableSkeleton />
-              </>
-            ) : (
-              <>
-                <CourseRankHeatmap courses={courseList} title="Course Rankings by Competitiveness" />
-                <CourseTable courses={courseList} title="All Courses" />
-              </>
-            )}
-          </TabsContent>
+          {isLoading ? (
+            <>
+              <ChartSkeleton />
+              <TableSkeleton />
+            </>
+          ) : (
+            <>
+              <TabsContent value="courses" className="space-y-6 mt-6">
 
-          <TabsContent value="cutoffs" className="space-y-6 mt-6">
-            {isLoading ? (
-              <>
-                <ChartSkeleton />
-                <ChartSkeleton />
-                <TableSkeleton />
-              </>
-            ) : (
-              <>
+                <CourseRankHeatmap courses={courseList} title="Course Rankings by Competitiveness" />
+              </TabsContent>
+              <TabsContent value="cutoffs" className="space-y-6 mt-6">
                 <CutoffDivergingChart
                   courses={cutoffList as CourseWithCutoff[]}
                 />
-                <CourseTable
-                  courses={cutoffList}
-                  title="Cutoff Analysis"
-                  showCutoff
-                />
-              </>
-            )}
-          </TabsContent>
+              </TabsContent>
+
+              <CourseTable courses={cutoffList} title="All Courses" showCutoff />
+            </>
+          )}
         </Tabs>
       </div>
     </DashboardLayout>
