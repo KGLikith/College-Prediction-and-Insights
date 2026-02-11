@@ -31,10 +31,8 @@ export function CollegeCard({ college }: CollegeCardProps) {
   return (
     <Card className="h-full overflow-hidden transition-all hover:shadow-md border-l-4 border-l-primary/20">
 
-      {/* HEADER */}
       <CardHeader className="space-y-3 overflow-hidden">
 
-        {/* ✅ COLLEGE NAME (ONLY TRUNCATED ROW) */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -52,10 +50,8 @@ export function CollegeCard({ college }: CollegeCardProps) {
           </Tooltip>
         </TooltipProvider>
 
-        {/* ✅ COURSE + COLLEGE ID ROW */}
         <div className="flex items-center justify-between gap-4 min-w-0">
 
-          {/* LEFT SIDE: Course */}
           <div className="flex items-center gap-2 min-w-0">
             <GraduationCap className="h-4 w-4 shrink-0 text-muted-foreground" />
 
@@ -71,7 +67,6 @@ export function CollegeCard({ college }: CollegeCardProps) {
             </Badge>
           </div>
 
-          {/* RIGHT SIDE: College ID */}
           <Badge
             variant="outline"
             className="text-xs font-mono shrink-0"
@@ -83,7 +78,6 @@ export function CollegeCard({ college }: CollegeCardProps) {
 
       </CardHeader>
 
-      {/* BODY */}
       <CardContent className="space-y-3 pt-0 text-sm">
 
         <div className="flex justify-between">

@@ -38,11 +38,6 @@ export const CutoffDivergingChart = ({
     )
   }
 
-  /**
-   * IMPORTANT:
-   * - courseKey = unique identifier (FULL name)
-   * - label formatting is done ONLY in tickFormatter
-   */
   const data = useMemo(() => {
     return courses
       .filter(

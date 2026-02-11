@@ -228,7 +228,7 @@ export default function PredictionsPage() {
         <>
           <CollegeTable colleges={filteredColleges} title="All Predictions" />
           
-          <div className="flex justify-center gap-4 mt-6">
+          <div className="flex justify-center gap-4 mt-6 items-center mb-2">
             <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
               Prev
             </Button>

@@ -89,7 +89,7 @@ export function ResultsFilter({
 
   return (
     <Card className="border shadow-sm">
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="pt-1 px-6 space-y-6">
 
         <div className="flex items-center justify-between">
 

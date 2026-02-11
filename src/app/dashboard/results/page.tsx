@@ -35,7 +35,6 @@ import { CollegeTable } from "@/components/tables/CollegeTable"
 import { TableSkeleton } from "@/components/LoadingSkeleton"
 import { ResultsFilter } from "@/components/result-filter"
 
-/* ---------- helper ---------- */
 const getCourseCode = (courseName: string): string => {
   if (!courseName) return ""
   const upper = courseName.toUpperCase()
@@ -135,19 +134,16 @@ export default function FlatResults() {
     )
   }, [colleges, filters.search])
 
-  /* ---------- TOP 3 ---------- */
   const top3 = useMemo(() => {
     return filteredColleges
       .filter((c) => c.chances === "high")
       .slice(0, 3)
   }, [filteredColleges])
 
-  /* ---------- STATS ---------- */
   const high = filteredColleges.filter((c) => c.chances === "high").length
   const medium = filteredColleges.filter((c) => c.chances === "medium").length
   const low = filteredColleges.filter((c) => c.chances === "low").length
 
-  /* ---------- STATES ---------- */
   if (loading)
     return (
       <div className="flex justify-center py-24 items-cen">
@@ -255,7 +251,7 @@ export default function FlatResults() {
           <CollegeTable colleges={filteredColleges} title="All Results" />
         )}
 
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex justify-center gap-4 mt-6 items-center mb-2">
           <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
             Prev
           </Button>

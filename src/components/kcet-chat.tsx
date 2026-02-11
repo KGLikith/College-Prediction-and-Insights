@@ -7,10 +7,48 @@ import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Menu, X } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { CalendarTimeline } from "./tables/calendarTimeTable"
 
 interface Message {
   role: "user" | "assistant"
   text: string
+}
+
+type CalendarItem = {
+  number: string;
+  event: string;
+  date: string;
+};
+
+
+function autoFixLists(text: string) {
+  return text.replace(/(\d+\.\s\*\*.*?\*\*:\n)/g, "$1\n");
+}
+
+
+
+function parseCalendarTable(text: string): CalendarItem[] | null {
+  const tableRegex = /\|\s*No\.\s*\|\s*Events\s*\|\s*Date\s*\|([\s\S]*?)$/;
+  const match = text.match(tableRegex);
+
+  if (!match) return null;
+
+  const rows = match[1]
+    .split("\n")
+    .filter((line) => line.trim().startsWith("|"))
+    .map((line): CalendarItem | null => {
+      const cols = line.split("|").map((c) => c.trim()).filter(Boolean);
+      if (cols.length < 3) return null;
+
+      return {
+        number: cols[0],
+        event: cols[1],
+        date: cols[2],
+      };
+    })
+    .filter((item): item is CalendarItem => item !== null);
+
+  return rows.length ? rows : null;
 }
 
 const PRESET_QUESTIONS = [
@@ -30,7 +68,6 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  /* Load chat history */
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
@@ -42,13 +79,11 @@ export default function ChatPage() {
     }
   }, [])
 
-  /* Save + Auto scroll */
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  /* Auto-expand textarea */
   useEffect(() => {
     if (!textareaRef.current) return
     textareaRef.current.style.height = "auto"
@@ -105,7 +140,7 @@ export default function ChatPage() {
       </div>
 
       <div className="hidden w-80 border-r border-neutral-200 dark:border-neutral-800 lg:flex">
-        <Sidebar askQuestion={askQuestion} />
+        <Sidebar askQuestion={askQuestion} disabled={loading} />
       </div>
 
       <AnimatePresence>
@@ -139,6 +174,7 @@ export default function ChatPage() {
                   askQuestion(q)
                   setSidebarOpen(false)
                 }}
+                disabled={loading}
               />
             </motion.div>
           </>
@@ -147,30 +183,66 @@ export default function ChatPage() {
 
       <div className="flex flex-1 flex-col pt-16 lg:pt-0">
         <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6">
-          <div className="mx-auto max-w-2xl space-y-4">
-            {messages.map((m, idx) => (
-              <div
-                key={idx}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+          <div className="mx-auto max-w-3xl space-y-4">
+            {messages.map((m, idx) => {
+              const isAssistant = m.role === "assistant";
+              const calendar = isAssistant ? parseCalendarTable(m.text) : null;
+              
+              console.log("Rendered assistant text:", m.text);
+              return (
                 <div
-                  className={`max-w-xs rounded-2xl px-4 py-3 text-sm shadow-sm sm:max-w-sm ${m.role === "user"
-                    ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900"
-                    : "bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50"
-                    }`}
+                  key={idx}
+                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {m.role === "assistant" ? (
-                    <div className="prose prose-sm max-w-none dark:prose-invert prose-neutral [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {m.text}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    m.text
-                  )}
+                  <div
+                    className={`rounded-2xl px-4 py-3 text-sm shadow-sm
+        ${m.role === "user"
+                        ? "max-w-sm sm:max-w-lg bg-neutral-900 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900"
+                        : calendar
+                          ? "max-w-2xl bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50"
+                          : "max-w-lg bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50"
+                      }`}
+                  >
+                    {isAssistant ? (
+                      calendar ? (
+                        <CalendarTimeline items={calendar} />
+                      ) : (
+                        <div
+                          className="
+                                prose prose-sm max-w-none
+                                dark:prose-invert prose-neutral
+
+                                prose-ol:list-decimal
+                                prose-ol:pl-5
+
+                                prose-ul:list-disc
+                                prose-ul:pl-5
+
+                                prose-li:my-1
+                                prose-li:marker:font-semibold
+
+                                prose-li>ul:mt-1
+                                prose-li>ul:pl-4
+
+                                prose-headings:mt-4
+                                prose-headings:mb-2
+                                prose-h3:text-sm
+                                prose-h3:font-semibold
+                              "
+                        >
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {autoFixLists(m.text)}
+                          </ReactMarkdown>
+                        </div>
+                      )
+                    ) : (
+                      m.text
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
 
             {loading && (
               <div className="flex justify-start">
@@ -227,7 +299,7 @@ export default function ChatPage() {
   )
 }
 
-function Sidebar({ askQuestion }: { askQuestion: (q: string) => void }) {
+function Sidebar({ askQuestion, disabled }: { askQuestion: (q: string) => void, disabled: boolean  }) {
   return (
     <div className="flex h-full flex-col p-4">
       <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
@@ -250,6 +322,7 @@ function Sidebar({ askQuestion }: { askQuestion: (q: string) => void }) {
               variant="outline"
               className="h-auto w-full justify-start whitespace-normal bg-transparent p-3 text-left text-sm leading-relaxed text-neutral-900 transition-all hover:border-neutral-300 hover:bg-neutral-100 dark:border-neutral-800 dark:text-neutral-50 dark:hover:border-neutral-700 dark:hover:bg-neutral-900"
               onClick={() => askQuestion(q)}
+              disabled={disabled}
             >
               {q}
             </Button>

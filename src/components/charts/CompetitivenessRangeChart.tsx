@@ -19,14 +19,14 @@ interface CompetitivenessRangeChartProps {
 
 export const CompetitivenessRangeChart = ({
   colleges,
-  title = "Course Competitiveness Range",
+  title = "Course Competitiveness Range for Top 10 Colleges",
 }: CompetitivenessRangeChartProps) => {
   const truncateCollegeName = (name: string, maxLength: number = 32) => {
     return name.length > maxLength ? name.substring(0, maxLength) + "..." : name
   }
 
   const data = colleges.slice(0, 12).map((college) => ({
-    college: truncateCollegeName(college.collegeName),
+    college: `${truncateCollegeName(college.collegeName)} - ${college.collegeID}`,
     fullName: college.collegeName,
     mostRank: college.mostCompetitiveRank,
     leastRank: college.leastCompetitiveRank,
@@ -53,9 +53,9 @@ export const CompetitivenessRangeChart = ({
   }
 
   return (
-    <Card className="border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <Card className="border-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow pt-0">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-b">
-        <div className="space-y-2">
+        <div className=" pt-4">
           <div className="flex items-center justify-between gap-4">
             <CardTitle className="text-lg font-bold">{title}</CardTitle>
           </div>
@@ -68,13 +68,13 @@ export const CompetitivenessRangeChart = ({
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ top: 15, right: 30, left: 280, bottom: 15 }}
+            margin={{ top: 15, right: 30, left: 20, bottom: 15 }}
             barCategoryGap="15%"
           >
             <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" vertical={false} />
 
-            <XAxis 
-              type="number" 
+            <XAxis
+              type="number"
               stroke="#9ca3af"
               fontSize={12}
               label={{ value: "Rank", position: "insideBottomRight", offset: -10 }}

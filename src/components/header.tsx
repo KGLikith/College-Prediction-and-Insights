@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemeToggle } from "./theme-toggle"
+import { useEffect, useState } from "react"
+import clsx from "clsx"
 
 const NAV_ITEMS = [
   { label: "Predictions", href: "/dashboard/#prediction-form", link: "/dashboard/results" },
@@ -14,10 +16,19 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const pathname = usePathname()
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const isDashboard = pathname.startsWith("/dashboard")
   const isDashboardHome = pathname === "/dashboard"
-
   const showNav = isDashboard && !isDashboardHome
 
   const filteredNav = NAV_ITEMS.filter(
@@ -25,7 +36,14 @@ export default function Header() {
   )
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/95 dark:bg-neutral-950/95 backdrop-blur-sm">
+    <header
+      className={clsx(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        scrolled
+          ? "backdrop-blur-xl bg-white/60 dark:bg-neutral-900/60 shadow-md border-b border-white/20 dark:border-white/10"
+          : "bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800"
+      )}
+    >
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         <div className="flex flex-col gap-0.5">

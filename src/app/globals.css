@@ -168,3 +168,13 @@ html::-webkit-scrollbar {
 .dark .thin-scrollbar::-webkit-scrollbar-thumb {
   background-color: #525252; /* neutral-600 */
 }
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+}

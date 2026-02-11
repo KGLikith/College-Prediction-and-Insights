@@ -12,7 +12,8 @@ export default function DashboardLayout({
 }) {
   return (
 
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 scrollbar-hidden overflow-y-auto">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+
       <Header />
 
       <motion.main
