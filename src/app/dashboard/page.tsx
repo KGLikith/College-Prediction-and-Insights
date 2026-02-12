@@ -154,7 +154,7 @@ export default function Page() {
                 <BookOpen className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
               </div>
               <CardTitle className="text-lg text-neutral-900 dark:text-neutral-50">
-                280+ Colleges
+                220+ Colleges
               </CardTitle>
             </CardHeader>
             <CardContent>
