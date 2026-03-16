@@ -12,6 +12,7 @@ export interface BaseFormData {
   year?: number
   round?: number
   course?: string
+  college?: string
 }
 
 export interface KCETFormData extends BaseFormData {

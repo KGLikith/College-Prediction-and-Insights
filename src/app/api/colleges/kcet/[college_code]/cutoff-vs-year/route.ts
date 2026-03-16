@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -16,11 +17,19 @@ export async function GET(
     );
   }
 
-  try { 
-    const { searchParams } = new URL(req.url);
-    const category = searchParams.get("cat") || "GM";
+  const { searchParams } = new URL(req.url);
+  const courseCode = searchParams.get("course_code");
+  const category = searchParams.get("cat");
 
-    const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/cutoffs?cat=${category}`;
+  if (!courseCode || !category) {
+    return NextResponse.json(
+      { message: "Course code and category are required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const apiUrl = `${BACKEND_URL}/api/colleges/kcet/${college_code}/cutoff-vs-year?course_code=${courseCode}&cat=${category}`;
 
     const response = await axios.get(apiUrl, {
       timeout: 10000,
@@ -37,14 +46,14 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    console.error("[API ERROR] Cutoffs:", error.message);
+    console.error(`[API ERROR] Cutoff vs Year for ${college_code}:`, error.message);
 
     if (error.response) {
       return NextResponse.json(
         {
           message:
             error.response.data?.message ||
-            "Backend error while fetching cutoffs",
+            "Backend error while fetching cutoff vs year data",
           status: "error",
         },
         { status: error.response.status }
@@ -53,7 +62,7 @@ export async function GET(
 
     return NextResponse.json(
       {
-        message: "Failed to fetch college cutoffs",
+        message: "Failed to fetch cutoff vs year data",
         status: "error",
       },
       { status: 500 }

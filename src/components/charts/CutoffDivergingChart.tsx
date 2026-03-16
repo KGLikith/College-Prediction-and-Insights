@@ -38,6 +38,7 @@ export const CutoffDivergingChart = ({
     )
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const data = useMemo(() => {
     return courses
       .filter(

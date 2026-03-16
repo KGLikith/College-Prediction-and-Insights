@@ -75,17 +75,19 @@ export default function FlatResults() {
   const [limit] = useState(25)
 
   const [filters, setFilters] = useState<{
-    search: string
+    collegeId: string
     course: string
+    category: string
     chances: string
     round: number | null
     district: string
   }>({
-    search: "",
-    course: "all",
-    chances: "all",
-    round: null,
-    district: "ALL"
+    collegeId: searchParams.get("college-code") || searchParams.get("collegeId") || "",
+    course: searchParams.get("course") || "all",
+    category: searchParams.get("cat") || userCategory || "all",
+    chances: searchParams.get("chances") || "all",
+    round: searchParams.get("round") ? Number(searchParams.get("round")) : null,
+    district: searchParams.get("district") || "ALL",
   })
 
   useEffect(() => {
@@ -95,12 +97,20 @@ export default function FlatResults() {
         setError(null)
 
         const queryParams = new URLSearchParams()
-        searchParams.forEach((v, k) => queryParams.append(k, v))
-        queryParams.set("page", page.toString())
-        queryParams.set("limit", limit.toString())
-
+        searchParams.forEach((v, k) => {
+          if (k !== "collegeId" && k !== "college-code" && k !== "course" && k !== "cat" && k !== "chances" && k !== "round" && k !== "district") {
+             queryParams.append(k, v)
+          }
+        })
+        
+        if (filters.collegeId)
+          queryParams.set("college-code", filters.collegeId)
         if (filters.course !== "all")
           queryParams.set("course", getCourseCode(filters.course))
+        
+        const selectedCategory = filters.category !== "all" ? filters.category : userCategory
+        if (selectedCategory) queryParams.set("cat", selectedCategory)
+
         if (filters.chances !== "all")
           queryParams.set("chances", filters.chances)
         if (filters.round !== null)
@@ -109,7 +119,9 @@ export default function FlatResults() {
           queryParams.set("district", filters.district)
 
         router.replace(`?${queryParams.toString()}`, { scroll: false })
-
+        
+        queryParams.set("page", page.toString())
+        queryParams.set("limit", limit.toString())
         const res = await axios.get(
           `/api/exams/${examType}?${queryParams.toString()}`
         )
@@ -127,12 +139,9 @@ export default function FlatResults() {
   const colleges: College[] = results?.colleges ?? []
 
   const filteredColleges = useMemo(() => {
-    if (!filters.search) return colleges
-    const q = filters.search.toLowerCase()
-    return colleges.filter((c) =>
-      c.collegeName.toLowerCase().includes(q)
-    )
-  }, [colleges, filters.search])
+    if (!filters.collegeId) return colleges
+    return colleges.filter((c) => c.collegeID === filters.collegeId)
+  }, [colleges, filters.collegeId])
 
   const top3 = useMemo(() => {
     return filteredColleges
@@ -158,15 +167,7 @@ export default function FlatResults() {
       </Alert>
     )
 
-  if (!results || colleges.length === 0)
-    return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-          <p>No results found</p>
-        </CardContent>
-      </Card>
-    )
+  if (!results) return null
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pt-8 ">
@@ -189,32 +190,37 @@ export default function FlatResults() {
         <CardContent className="py-3 flex gap-6 text-sm">
           <span>Exam: <b>{examType.toUpperCase()}</b></span>
           <span>Rank: <b>{userRank}</b></span>
-          <span>Category: <b>{userCategory}</b></span>
+          <span>Category: <b>{filters.category !== "all" ? filters.category : userCategory}</b></span>
           <span>Results: <b>{filteredColleges.length}</b></span>
         </CardContent>
       </Card>
 
-      {top3.length > 0 && (
-        <section>
-          <h2 className="text-xl font-semibold mb-3">Top Matches</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {top3.map((c, i) => (
-              <CollegeCard key={i} college={c} />
-            ))}
-          </div>
-        </section>
-      )}
+      {filteredColleges.length > 0 && (
+        <>
+          {top3.length > 0 && (
+            <section>
+              <h2 className="text-xl font-semibold mb-3">Top Matches</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {top3.map((c, i) => (
+                  <CollegeCard key={i} college={c} />
+                ))}
+              </div>
+            </section>
+          )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChanceDonutChart colleges={filteredColleges} />
-        <RankComparisonChart colleges={filteredColleges} />
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChanceDonutChart colleges={filteredColleges} />
+            <RankComparisonChart colleges={filteredColleges} />
+          </div>
+        </>
+      )}
 
       <ResultsFilter
         collegeCount={filteredColleges.length}
         initialValues={{
-          search: filters.search,
+          collegeId: filters.collegeId,
           course: filters.course,
+          category: filters.category,
           chances: filters.chances,
           round: filters.round ? filters.round.toString() : "all",
           district: filters.district,
@@ -222,8 +228,9 @@ export default function FlatResults() {
         onApplyFilters={(newFilters) => {
           setPage(1)
           setFilters({
-            search: newFilters.search,
+            collegeId: newFilters.collegeId,
             course: newFilters.course,
+            category: newFilters.category,
             chances: newFilters.chances,
             round:
               newFilters.round === "all"
@@ -235,8 +242,9 @@ export default function FlatResults() {
         onClearFilters={() => {
           setPage(1)
           setFilters({
-            search: "",
+            collegeId: "",
             course: "all",
+            category: "all",
             chances: "all",
             round: null,
             district: "ALL",
@@ -245,24 +253,52 @@ export default function FlatResults() {
       />
 
       <div>
-        {loading ? (
+        {filteredColleges.length === 0 ? (
+          <Card className="border-dashed bg-muted/20">
+            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+              <Target className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-lg font-medium">No matches for your filters</p>
+              <p className="text-sm text-muted-foreground max-w-[300px] mt-2 mb-6">
+                Try changing or clearing your filters to see more colleges.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPage(1)
+                  setFilters({
+                    collegeId: "",
+                    course: "all",
+                    category: "all",
+                    chances: "all",
+                    round: null,
+                    district: "ALL",
+                  })
+                }}
+              >
+                Clear Filters
+              </Button>
+            </CardContent>
+          </Card>
+        ) : loading ? (
           <TableSkeleton />
         ) : (
           <CollegeTable colleges={filteredColleges} title="All Results" />
         )}
 
-        <div className="flex justify-center gap-4 mt-6 items-center mb-2">
-          <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-            Prev
-          </Button>
-          <span className="text-sm font-medium">Page {page}</span>
-          <Button
-            disabled={!results.hasMore}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
+        {filteredColleges.length > 0 && (
+          <div className="flex justify-center gap-4 mt-6 items-center mb-2">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Prev
+            </Button>
+            <span className="text-sm font-medium">Page {page}</span>
+            <Button
+              disabled={!results.hasMore}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
     </div>

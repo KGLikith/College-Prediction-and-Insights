@@ -57,8 +57,9 @@ export default function PredictionsPage() {
   const userCategory = searchParams.get("cat")
 
   const initialFilters = {
-    search: searchParams.get("search") || "",
+    collegeId: searchParams.get("college-code") || searchParams.get("collegeId") || "",
     course: searchParams.get("course") || "all",
+    category: searchParams.get("cat") || userCategory || "all",
     chances: searchParams.get("chances") || "all",
     round: searchParams.get("round") || "all",
     district: searchParams.get("district") || "ALL",
@@ -76,13 +77,13 @@ export default function PredictionsPage() {
 
         if (examType) queryParams.set("exam", examType)
         if (userRank) queryParams.set("rank", userRank)
-        if (userCategory) queryParams.set("cat", userCategory)
 
-        queryParams.set("page", page.toString())
-        queryParams.set("limit", limit.toString())
+        // Use filter category if specifically chosen, otherwise fallback to the form's userCategory
+        const selectedCategory = filters.category !== "all" ? filters.category : userCategory
+        if (selectedCategory) queryParams.set("cat", selectedCategory)
 
-        if (filters.search)
-          queryParams.set("search", filters.search)
+        if (filters.collegeId)
+          queryParams.set("college-code", filters.collegeId)
 
         if (filters.course !== "all")
           queryParams.set("course", getCourseCode(filters.course))
@@ -95,6 +96,8 @@ export default function PredictionsPage() {
 
         if (filters.district !== "ALL")
           queryParams.set("district", filters.district)
+        queryParams.set("page", page.toString())
+        queryParams.set("limit", limit.toString())
 
         router.replace(`?${queryParams.toString()}`, { scroll: false })
 
@@ -117,12 +120,11 @@ export default function PredictionsPage() {
   const colleges: College[] = results?.colleges ?? []
 
   const filteredColleges = useMemo(() => {
-    if (!filters.search) return colleges
-    const q = filters.search.toLowerCase()
+    if (!filters.collegeId) return colleges
     return colleges.filter((c) =>
-      c.collegeName.toLowerCase().includes(q)
+      c.collegeID === filters.collegeId
     )
-  }, [colleges, filters.search])
+  }, [colleges, filters.collegeId])
 
   const top3 = useMemo(
     () => filteredColleges.filter((c) => c.chances === "high").slice(0, 3),
@@ -148,15 +150,7 @@ export default function PredictionsPage() {
       </Alert>
     )
 
-  if (!results || filteredColleges.length === 0)
-    return (
-      <Card className="max-w-3xl mx-auto mt-8">
-        <CardContent className="py-16 text-center">
-          <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-lg">No predictions found</p>
-        </CardContent>
-      </Card>
-    )
+  if (!results) return null
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-6 pt-6">
@@ -181,26 +175,30 @@ export default function PredictionsPage() {
         <CardContent className="py-4 flex flex-wrap gap-6 font-medium">
           <div>Exam: <b>{examType.toUpperCase()}</b></div>
           <div>Rank: <b>{userRank}</b></div>
-          <div>Category: <b>{userCategory}</b></div>
+          <div>Category: <b>{filters.category !== "all" ? filters.category : userCategory}</b></div>
           <div>Predictions: <b>{filteredColleges.length}</b></div>
         </CardContent>
       </Card>
 
-      {top3.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Top Matches</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {top3.map((c, i) => (
-              <CollegeCard key={i} college={c} />
-            ))}
-          </div>
-        </div>
-      )}
+      {filteredColleges.length > 0 && (
+        <>
+          {top3.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Top Matches</h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                {top3.map((c, i) => (
+                  <CollegeCard key={i} college={c} />
+                ))}
+              </div>
+            </div>
+          )}
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        <ChanceDonutChart colleges={filteredColleges} />
-        <RankComparisonChart colleges={filteredColleges} />
-      </div>
+          <div className="grid lg:grid-cols-2 gap-8">
+            <ChanceDonutChart colleges={filteredColleges} />
+            <RankComparisonChart colleges={filteredColleges} />
+          </div>
+        </>
+      )}
 
       <ResultsFilter
         collegeCount={filteredColleges.length}
@@ -212,8 +210,9 @@ export default function PredictionsPage() {
         onClearFilters={() => {
           setPage(1)
           setFilters({
-            search: "",
+            collegeId: "",
             course: "all",
+            category: "all",
             chances: "all",
             round: "all",
             district: "ALL",
@@ -222,12 +221,38 @@ export default function PredictionsPage() {
       />
 
 
-      {loading ? (
+      {filteredColleges.length === 0 ? (
+        <Card className="border-dashed bg-muted/20">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <Target className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium">No matches for your filters</p>
+            <p className="text-sm text-muted-foreground max-w-[300px] mt-2 mb-6">
+              Try changing or clearing your filters to see more colleges.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPage(1)
+                setFilters({
+                  collegeId: "",
+                  course: "all",
+                  category: "all",
+                  chances: "all",
+                  round: "all",
+                  district: "ALL",
+                })
+              }}
+            >
+              Clear Filters
+            </Button>
+          </CardContent>
+        </Card>
+      ) : loading ? (
         <TableSkeleton />
       ) : (
         <>
           <CollegeTable colleges={filteredColleges} title="All Predictions" />
-          
+
           <div className="flex justify-center gap-4 mt-6 items-center mb-2">
             <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
               Prev

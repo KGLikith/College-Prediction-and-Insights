@@ -62,9 +62,9 @@ export default function Page() {
     defaultValues: {
       exam: selectedExam,
       rank: undefined,
-      category: "",
       round: undefined,
       course: undefined,
+      college: undefined,
       district: "ALL",
     },
   })
@@ -88,6 +88,8 @@ export default function Page() {
               ? "institute-type"
               : key === "category"
               ? "cat"
+              : key === "college"
+              ? "college-code"
               : key
 
           queryParams.append(apiKey, value.toString())
@@ -126,6 +128,7 @@ export default function Page() {
       category: "",
       round: undefined,
       course: undefined,
+      college: undefined,
       district: "ALL",
     })
   }

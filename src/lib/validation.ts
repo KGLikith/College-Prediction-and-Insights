@@ -23,6 +23,10 @@ const baseSchema = z.object({
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
     z.string().optional()
   ),
+  college: z.preprocess(
+    (v) => (typeof v === "string" && (v.trim() === "" || v === "ALL") ? undefined : v),
+    z.string().optional()
+  ),
 });
 
 export const kcetSchema = baseSchema.extend({

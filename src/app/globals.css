@@ -178,3 +178,12 @@ html::-webkit-scrollbar {
   list-style-type: disc;
   padding-left: 1.25rem;
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

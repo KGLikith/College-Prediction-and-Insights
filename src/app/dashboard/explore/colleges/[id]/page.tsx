@@ -22,6 +22,7 @@ import { DashboardLayout } from "../../DashboardLayout"
 import { CourseRankHeatmap } from "@/components/charts/CourseRankHeatmap"
 import { CourseTable } from "@/components/tables/CourseTable"
 import { CutoffDivergingChart } from "@/components/charts/CutoffDivergingChart"
+import { YearWiseCutoffChart } from "@/components/charts/YearWiseCutoffChart"
 
 const CollegeDetailPage = () => {
   const { id: collegeCode } = useParams<{ id: string }>()
@@ -136,9 +137,10 @@ const CollegeDetailPage = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="cutoffs">Cutoffs</TabsTrigger>
+            <TabsTrigger value="trends">Trends</TabsTrigger>
           </TabsList>
 
           {isLoading ? (
@@ -155,6 +157,12 @@ const CollegeDetailPage = () => {
               <TabsContent value="cutoffs" className="space-y-6 mt-6">
                 <CutoffDivergingChart
                   courses={cutoffList as CourseWithCutoff[]}
+                />
+              </TabsContent>
+              <TabsContent value="trends" className="space-y-6 mt-6">
+                <YearWiseCutoffChart
+                  collegeCode={collegeCode}
+                  initialCategory={category}
                 />
               </TabsContent>
 

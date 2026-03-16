@@ -41,7 +41,7 @@ export const CourseTable = ({ courses, title = "Courses", showCutoff = false }: 
               <TableRow className="bg-muted/50">
                 <TableHead className="font-semibold">Course Name</TableHead>
                 <TableHead className="font-semibold text-right">Course Rank</TableHead>
-                {showCutoff && <TableHead className="font-semibold text-right">Cutoff Rank</TableHead>}
+                {showCutoff && <TableHead className="font-semibold text-right">Cutoff Rank (GM)</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>

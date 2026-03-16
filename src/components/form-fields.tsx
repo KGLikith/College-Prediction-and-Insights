@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useFormContext } from "react-hook-form"
 import { INDIAN_STATES, COURSE_CATEGORIES } from "@/lib/types"
 import { Input } from "@/components/ui/input"
@@ -10,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   FormField,
   FormItem,
@@ -18,9 +18,15 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form"
+import { Checkbox } from "./ui/checkbox"
 
 type Props = {
   examType: "kcet" | "comedk" | "jee"
+}
+
+interface CollegeOption {
+  collegeID: string
+  collegeName: string
 }
 
 const CATEGORY_OPTIONS: Record<string, string[]> = {
@@ -37,15 +43,77 @@ const ROUND_OPTIONS: Record<Props["examType"], string[]> = {
 
 export function FormFields({ examType }: Props) {
   const form = useFormContext()
+  const [colleges, setColleges] = React.useState<CollegeOption[]>([])
+  const [isLoadingColleges, setIsLoadingColleges] = React.useState(false)
+  const [collegeSearch, setCollegeSearch] = React.useState("")
+
+  const [collegeCourses, setCollegeCourses] = React.useState<any[]>([])
+  const [isLoadingCourses, setIsLoadingCourses] = React.useState(false)
+
+  const selectedCollegeId = form.watch("college")
+
+  React.useEffect(() => {
+    if (examType === "kcet") {
+      const fetchColleges = async () => {
+        try {
+          setIsLoadingColleges(true)
+          const res = await fetch("/api/colleges/kcet")
+          if (res.ok) {
+            const data = await res.json()
+            setColleges(data.colleges || [])
+          }
+        } catch (error) {
+          console.error("Failed to fetch colleges", error)
+        } finally {
+          setIsLoadingColleges(false)
+        }
+      }
+      fetchColleges()
+    } else {
+      setColleges([])
+    }
+  }, [examType])
+
+  React.useEffect(() => {
+    if (!selectedCollegeId || selectedCollegeId === "ALL") {
+      setCollegeCourses([])
+      return
+    }
+
+    const fetchCourses = async () => {
+      try {
+        setIsLoadingCourses(true)
+        const res = await fetch(`/api/colleges/kcet/${selectedCollegeId}/course-codes`)
+        if (res.ok) {
+          const data = await res.json()
+          const list = data?.colleges?.[0]?.CourseList ?? []
+          setCollegeCourses(list)
+
+          const currentCourse = form.getValues("course")
+          if (currentCourse && currentCourse !== "ALL") {
+            const courseExists = list?.some((c: any) => c.course_code === currentCourse)
+            if (!courseExists) {
+              form.setValue("course", undefined)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch college courses", error)
+      } finally {
+        setIsLoadingCourses(false)
+      }
+    }
+
+    fetchCourses()
+  }, [selectedCollegeId, form])
+
   if (!form) return null
 
   const isJEE = examType === "jee"
 
   return (
     <div className="w-full space-y-12">
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
         <FormField
           control={form.control}
           name="rank"
@@ -132,6 +200,93 @@ export function FormFields({ examType }: Props) {
 
         <FormField
           control={form.control}
+          name="college"
+          render={({ field }) => {
+            const filteredColleges = colleges.filter((c) =>
+              `${c.collegeName} ${c.collegeID}`
+                .toLowerCase()
+                .includes(collegeSearch.toLowerCase())
+            )
+
+            const selectedCollege =
+              colleges.find((c) => c.collegeID === field.value)
+
+            return (
+              <FormItem className="flex flex-col">
+                <FormLabel>Preferred College</FormLabel>
+
+                <Select
+                  value={field.value || "ALL"}
+                  onValueChange={(v) => field.onChange(v === "ALL" ? undefined : v)}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      {isLoadingColleges ? <>
+                        <div className="flex items-center justify-center">Loading colleges...</div>
+                      </>
+                      :
+                      <span className="truncate w-full text-left">
+                        {selectedCollege ? (
+                          <span className="flex items-center gap-2">
+                            <span>{selectedCollege.collegeName}</span>
+                            <span className="text-xs text-muted-foreground">
+                              • {selectedCollege.collegeID}
+                            </span>
+                          </span>
+                        ) : (
+                          "ALL Colleges"
+                        )}
+                      </span>}
+                    </SelectTrigger>
+                  </FormControl>
+
+                  <SelectContent className="w-[420px]">
+
+                    <div className="p-2 border-b">
+                      <Input
+                        placeholder="Search college..."
+                        value={collegeSearch}
+                        onChange={(e) => setCollegeSearch(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="max-h-[260px] overflow-y-auto scrollbar-none">
+
+                      <SelectItem value="ALL">
+                        <span className="font-semibold">ALL Colleges</span>
+                      </SelectItem>
+
+                      {filteredColleges.map((college) => (
+                        <SelectItem
+                          key={college.collegeID}
+                          value={college.collegeID}
+                          className="py-2"
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {college.collegeName}
+                            </span>
+
+                            <span className="text-xs text-muted-foreground">
+                              {college.collegeID}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+
+                    </div>
+
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )
+          }}
+        />
+
+        <FormField
+          control={form.control}
           name="course"
           render={({ field }) => (
             <FormItem>
@@ -149,12 +304,20 @@ export function FormFields({ examType }: Props) {
                 </FormControl>
                 <SelectContent className="max-h-72">
                   <SelectItem value="ALL">ALL</SelectItem>
-                  {Object.entries(COURSE_CATEGORIES).map(
-                    ([code, name]) => (
+                  {isLoadingCourses ? (
+                    <SelectItem value="loading" disabled>Loading courses...</SelectItem>
+                  ) : collegeCourses.length > 0 ? (
+                    collegeCourses.map((c: any) => (
+                      <SelectItem key={c.course_code} value={c.course_code}>
+                        {c.course_name} ({c.course_code})
+                      </SelectItem>
+                    ))
+                  ) : (
+                    Object.entries(COURSE_CATEGORIES).map(([code, name]) => (
                       <SelectItem key={code} value={code}>
                         {name} ({code})
                       </SelectItem>
-                    )
+                    ))
                   )}
                 </SelectContent>
               </Select>
