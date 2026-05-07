@@ -74,7 +74,7 @@ export const COURSE_NAME_TO_CODE = {
   Aerospace: "AS",
   Aeronautical: "AN",
   Mechanical: "ME",
-  Civil: "CV",
+  Civil: "CE",
   "Data Science": "DS",
   "Cyber Security": "CY",
   "Information Science": "IS",
@@ -128,18 +128,18 @@ export const getCourseCode = (courseName: string): string => {
     return COURSE_NAME_TO_CODE[courseName as keyof typeof COURSE_NAME_TO_CODE]
   }
 
-  const lowerCourseName = courseName.toLowerCase()
+  const lowerCourseName = courseName.toLowerCase().replace(/\s+/g, "")
 
-  if (lowerCourseName.includes("computer science") && lowerCourseName.includes("data science")) {
+  if (lowerCourseName.includes("computerscience") && lowerCourseName.includes("datascience")) {
     return "DS"
   }
-  if (lowerCourseName.includes("computer science") && lowerCourseName.includes("artificial intelligence")) {
+  if (lowerCourseName.includes("computerscience") && lowerCourseName.includes("artificialintelligence")) {
     return "AI"
   }
-  if (lowerCourseName.includes("computer science") && lowerCourseName.includes("cyber security")) {
+  if (lowerCourseName.includes("computerscience") && lowerCourseName.includes("cybersecurity")) {
     return "CY"
   }
-  if (lowerCourseName.includes("computer science")) {
+  if (lowerCourseName.includes("computerscience")) {
     return "CS"
   }
   if (lowerCourseName.includes("electronics") && lowerCourseName.includes("communication")) {
@@ -155,7 +155,7 @@ export const getCourseCode = (courseName: string): string => {
     return "EE"
   }
   if (lowerCourseName.includes("civil")) {
-    return "CV"
+    return "CE"
   }
   if (lowerCourseName.includes("biotechnology")) {
     return "BT"
