@@ -121,7 +121,9 @@ export function ResultsFilter({
     }
 
     fetchCourses()
-  }, [collegeId, course])
+    // Course list depends only on the selected college; `course` is read to
+    // reset a now-invalid selection, intentionally not a trigger.
+  }, [collegeId])
 
   useEffect(() => {
     setCollegeId(initialValues.collegeId)

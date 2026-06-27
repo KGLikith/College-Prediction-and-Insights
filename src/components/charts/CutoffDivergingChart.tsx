@@ -24,23 +24,8 @@ export const CutoffDivergingChart = ({
   courses,
   title = "Course-wise Cut-off Rank Comparison",
 }: CutoffDivergingChartProps) => {
-  if (!courses || courses.length === 0) {
-    return (
-      <Card className="border-0">
-        <CardHeader>
-          <CardTitle className="text-lg font-bold">{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
-          <TrendingDown className="h-12 w-12 mb-3 opacity-20" />
-          No rank data available
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const data = useMemo(() => {
-    return courses
+    return (courses ?? [])
       .filter(
         (c) =>
           typeof c.courseRank === "number" &&
@@ -53,6 +38,20 @@ export const CutoffDivergingChart = ({
         minRank: course.minRank,
       }))
   }, [courses])
+
+  if (data.length === 0) {
+    return (
+      <Card className="border-0">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
+          <TrendingDown className="h-12 w-12 mb-3 opacity-20" />
+          No rank data available
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">

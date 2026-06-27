@@ -20,7 +20,6 @@ const MODULES = [
     icon: Target,
     href: "/dashboard/explore/comparisons/category-vs-category",
     metricCount: 14,
-    trending: true
   },
   {
     title: "College vs College",
@@ -28,6 +27,7 @@ const MODULES = [
     icon: Building2,
     href: "/dashboard/explore/comparisons/college-vs-college",
     metricCount: 8,
+    trending: true
   },
   {
     title: "Course vs Course",

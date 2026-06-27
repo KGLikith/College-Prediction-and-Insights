@@ -41,6 +41,7 @@ import {
   Loader2,
   Check,
 } from "lucide-react"
+import { getShortlist, clearShortlist } from "@/lib/shortlist"
 
 interface College {
   collegeID: string
@@ -84,6 +85,7 @@ export default function PreferencePage() {
   const [selectedCollege, setSelectedCollege] = useState<College | null>(null)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [preferences, setPreferences] = useState<Preference[]>([])
+  const [importedCount, setImportedCount] = useState(0)
 
   const [loadingCourses, setLoadingCourses] = useState(false)
   const [loadingColleges, setLoadingColleges] = useState(true)
@@ -107,6 +109,29 @@ export default function PreferencePage() {
       c.course_name.toLowerCase().includes(courseSearch.toLowerCase())
     )
   }, [courses, courseSearch])
+
+  useEffect(() => {
+    const items = getShortlist()
+    if (items.length === 0) return
+
+    setPreferences((prev) => {
+      const existing = new Set(
+        prev.map((p) => `${p.college_code}::${p.course_code}`)
+      )
+      const additions = items
+        .filter((i) => !existing.has(`${i.college_code}::${i.course_code}`))
+        .map((i) => ({
+          id: crypto.randomUUID(),
+          college_code: i.college_code,
+          college_name: i.college_name,
+          course_code: i.course_code,
+          course_name: i.course_name,
+        }))
+      return [...prev, ...additions]
+    })
+    setImportedCount(items.length)
+    clearShortlist()
+  }, [])
 
   useEffect(() => {
     fetch("/api/colleges/kcet/")
@@ -574,6 +599,11 @@ export default function PreferencePage() {
             <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
               {preferences.length} preference{preferences.length !== 1 ? "s" : ""} added
             </p>
+            {importedCount > 0 && (
+              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                Imported {importedCount} from your shortlist
+              </p>
+            )}
           </div>
           <Button
             onClick={submitPreferences}
@@ -652,12 +682,12 @@ function SortablePreferenceItem({
         : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800/50"
         }`}
     >
-      <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300 w-6 h-6 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 flex-shrink-0">
+      <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300 w-6 h-6 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 shrink-0">
         {index + 1}
       </span>
 
       {!submitting && <GripVertical
-        className="h-4 w-4 text-neutral-500 dark:text-neutral-500 cursor-grab active:cursor-grabbing flex-shrink-0"
+        className="h-4 w-4 text-neutral-500 dark:text-neutral-500 cursor-grab active:cursor-grabbing shrink-0"
         {...attributes}
         {...listeners}
       />}
@@ -703,7 +733,7 @@ function SortablePreferenceItem({
         size="icon"
         variant="ghost"
         disabled={isDragging || submitting}
-        className="hover:bg-red-100/50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 flex-shrink-0"
+        className="hover:bg-red-100/50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 shrink-0"
         onClick={() => onRemove(pref.id)}
       >
         <X className="h-4 w-4" />

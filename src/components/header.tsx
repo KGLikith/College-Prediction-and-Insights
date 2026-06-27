@@ -8,10 +8,13 @@ import clsx from "clsx"
 
 const NAV_ITEMS = [
   { label: "Predictions", href: "/dashboard/#prediction-form", link: "/dashboard/results" },
+  { label: "Course Check", href: "/dashboard/check", link: "/dashboard/check" },
   { label: "Last Year Results", href: "/dashboard/#prediction-form", link: "/dashboard/predictions" },
   { label: "Explore Colleges", href: "/dashboard/explore/colleges", link: "/dashboard/explore/colleges" },
+  { label: "Analytics", href: "/dashboard/explore/comparisons", link: "/dashboard/explore/comparisons" },
   { label: "KCET Assistant", href: "/dashboard/chat", link: "/dashboard/chat" },
   { label: "Preference Order", href: "/dashboard/preference", link: "/dashboard/preference" },
+  { label: "Category Guide", href: "/dashboard/category-guide", link: "/dashboard/category-guide" },
 ]
 
 export default function Header() {

@@ -18,20 +18,20 @@ const getTier = (rank: number, maxRank: number): Tier => {
 
 const tierStyles = {
   top: {
-    bg: "bg-emerald-500",
-    text: "text-emerald-900",
+    tile: "bg-emerald-500/10 border-l-emerald-500",
+    bar: "bg-emerald-500",
     label: "Top Tier",
     description: "Most competitive courses",
   },
   middle: {
-    bg: "bg-amber-500",
-    text: "text-amber-900",
+    tile: "bg-amber-500/10 border-l-amber-500",
+    bar: "bg-amber-500",
     label: "Mid Tier",
     description: "Moderately competitive courses",
   },
   bottom: {
-    bg: "bg-red-500",
-    text: "text-red-900",
+    tile: "bg-red-500/10 border-l-red-500",
+    bar: "bg-red-500",
     label: "Bottom Tier",
     description: "Least competitive courses",
   },
@@ -62,7 +62,10 @@ export const CourseRankHeatmap = ({
   const tieredCourses = courses.map(course => ({
     ...course,
     tier: getTier(course.courseRank, maxRank),
-    rankPercentage: ((course.courseRank - minRank) / (maxRank - minRank)) * 100,
+    rankPercentage:
+      maxRank === minRank
+        ? 0
+        : ((course.courseRank - minRank) / (maxRank - minRank)) * 100,
   }))
 
   const topTier = tieredCourses.filter(c => c.tier === "top").sort((a, b) => a.courseRank - b.courseRank)
@@ -82,13 +85,10 @@ export const CourseRankHeatmap = ({
           {courses.map((course) => (
             <div
               key={course.courseName}
-              className={`relative overflow-hidden rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-default ${style.bg} bg-opacity-15 border-l-4`}
-              style={{
-                borderLeftColor: style.bg,
-              }}
+              className={`relative overflow-hidden rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-default border-l-4 ${style.tile}`}
             >
               <div
-                className={`absolute inset-0 ${style.bg} opacity-5`}
+                className={`absolute inset-0 ${style.bar} opacity-5`}
                 style={{
                   width: `${course.rankPercentage}%`,
                   transition: "width 0.6s ease-out",

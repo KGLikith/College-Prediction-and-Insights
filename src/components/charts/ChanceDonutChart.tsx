@@ -89,7 +89,7 @@ export const ChanceDonutChart = ({
                 `${name}: ${payload.percentage.toFixed(0)}%`
               }
               labelLine={{
-                stroke: "hsl(var(--foreground))",
+                stroke: "var(--foreground)",
                 strokeWidth: 1,
               }}
             >
@@ -98,7 +98,7 @@ export const ChanceDonutChart = ({
                   key={`cell-${index}`}
                   fill={entry.color}
                   strokeWidth={2}
-                  stroke="hsl(var(--background))"
+                  stroke="var(--background)"
                 />
               ))}
             </Pie>
@@ -109,13 +109,14 @@ export const ChanceDonutChart = ({
                 name ?? "",
               ]}
               contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "2px solid hsl(var(--border))",
+                backgroundColor: "var(--card)",
+                border: "2px solid var(--border)",
                 borderRadius: "var(--radius)",
                 padding: "12px",
+                color: "var(--foreground)",
               }}
               labelStyle={{
-                color: "hsl(var(--foreground))",
+                color: "var(--foreground)",
                 fontWeight: "600",
               }}
             />

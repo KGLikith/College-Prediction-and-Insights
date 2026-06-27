@@ -53,7 +53,7 @@ export const RankComparisonChart = ({
         <ResponsiveContainer width="100%" height={450}>
           <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 10 }}>
             <CartesianGrid
-              stroke="hsl(var(--border))"
+              stroke="var(--border)"
               strokeDasharray="3 3"
               opacity={0.4}
             />

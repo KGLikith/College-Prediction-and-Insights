@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, Menu, X } from "lucide-react"
+import { Loader2, Menu, X, Trash2 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { CalendarTimeline } from "./tables/calendarTimeTable"
@@ -91,6 +91,11 @@ export default function ChatPage() {
       textareaRef.current.scrollHeight + "px"
   }, [question])
 
+  const clearChat = () => {
+    setMessages([])
+    localStorage.removeItem(STORAGE_KEY)
+  }
+
   const askQuestion = async (q: string) => {
     if (!q.trim()) return
 
@@ -140,7 +145,12 @@ export default function ChatPage() {
       </div>
 
       <div className="hidden w-80 border-r border-neutral-200 dark:border-neutral-800 lg:flex">
-        <Sidebar askQuestion={askQuestion} disabled={loading} />
+        <Sidebar
+          askQuestion={askQuestion}
+          disabled={loading}
+          onClear={clearChat}
+          hasMessages={messages.length > 0}
+        />
       </div>
 
       <AnimatePresence>
@@ -175,6 +185,8 @@ export default function ChatPage() {
                   setSidebarOpen(false)
                 }}
                 disabled={loading}
+                onClear={clearChat}
+                hasMessages={messages.length > 0}
               />
             </motion.div>
           </>
@@ -298,7 +310,17 @@ export default function ChatPage() {
   )
 }
 
-function Sidebar({ askQuestion, disabled }: { askQuestion: (q: string) => void, disabled: boolean  }) {
+function Sidebar({
+  askQuestion,
+  disabled,
+  onClear,
+  hasMessages,
+}: {
+  askQuestion: (q: string) => void
+  disabled: boolean
+  onClear: () => void
+  hasMessages: boolean
+}) {
   return (
     <div className="flex h-full flex-col p-4">
       <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
@@ -327,6 +349,18 @@ function Sidebar({ askQuestion, disabled }: { askQuestion: (q: string) => void, 
             </Button>
           ))}
         </div>
+      </div>
+
+      <div className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 text-sm text-neutral-600 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400"
+          onClick={onClear}
+          disabled={disabled || !hasMessages}
+        >
+          <Trash2 className="h-4 w-4" />
+          Clear chat
+        </Button>
       </div>
     </div>
   )

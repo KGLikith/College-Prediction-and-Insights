@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { StatCard } from "@/components/StatCard"
 import {
@@ -120,16 +120,20 @@ const CollegeDetailPage = () => {
               />
               <StatCard
                 title="Lowest Cutoff"
-                value={Math.min(
-                  ...cutoffList.map((c) => c.minRank)
-                ).toLocaleString()}
+                value={
+                  cutoffList.length > 0
+                    ? Math.min(...cutoffList.map((c) => c.minRank)).toLocaleString()
+                    : "-"
+                }
                 icon={TrendingDown}
               />
               <StatCard
                 title="Highest Cutoff"
-                value={Math.max(
-                  ...cutoffList.map((c) => c.minRank)
-                ).toLocaleString()}
+                value={
+                  cutoffList.length > 0
+                    ? Math.max(...cutoffList.map((c) => c.minRank)).toLocaleString()
+                    : "-"
+                }
                 icon={GraduationCap}
               />
             </>
@@ -175,4 +179,12 @@ const CollegeDetailPage = () => {
   )
 }
 
-export default CollegeDetailPage
+export default function CollegeDetailPageWrapper() {
+  return (
+    <Suspense
+      fallback={<div className="py-24 text-center text-muted-foreground">Loading...</div>}
+    >
+      <CollegeDetailPage />
+    </Suspense>
+  )
+}

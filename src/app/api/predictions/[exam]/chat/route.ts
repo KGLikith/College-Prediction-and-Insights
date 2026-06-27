@@ -4,6 +4,13 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_RAG_URL
 
 export async function POST(req: NextRequest) {
   try {
+    if (!BACKEND_URL) {
+      return NextResponse.json(
+        { error: "Backend URL not configured" },
+        { status: 500 }
+      )
+    }
+
     const body = await req.json()
 
     const apiUrl = `${BACKEND_URL}/query`

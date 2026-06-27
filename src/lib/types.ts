@@ -48,13 +48,7 @@ export interface College {
   round: number
   cutoffRank: number
   gmRank: number
-  chances: Chance
-}
-
-enum Chance{
-  HIGH = "high",
-  MEDIUM = "medium",
-  LOW = "low",
+  chances: "high" | "medium" | "low"
 }
 
 export interface APIResponse {
@@ -233,16 +227,6 @@ export interface CollegeCutoffs {
 export interface CourseInfo {
   courseName: string
   courseRank: number
-}
-
-export interface CollegeRanking {
-  collegeRank: number
-  collegeID: string
-  collegeName: string
-  mostCompetitiveCourse: string
-  mostCompetitiveRank: number
-  leastCompetitiveCourse: string
-  leastCompetitiveRank: number
 }
 
 export const DISTRICT_CODE_TO_NAME = {

@@ -2,7 +2,6 @@
 
 import React from "react"
 import { motion } from "framer-motion"
-import { AnalyticsToolbar } from "./components/analytics-toolbar"
 
 export default function ComparisonsLayout({
   children,
@@ -11,8 +10,6 @@ export default function ComparisonsLayout({
 }) {
   return (
     <div className="flex h-[calc(100vh-64px)] w-full flex-col bg-neutral-50 dark:bg-neutral-950">
-      {/* <AnalyticsToolbar /> */}
-
       <div className="flex flex-1 overflow-hidden">
         {/* Main Analytics Content Area */}
         <motion.div

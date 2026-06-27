@@ -10,6 +10,13 @@ export async function GET(req: Request, context: { params: Promise<{ exam: strin
     return NextResponse.json({ message: "Invalid exam type" }, { status: 400 });
   }
 
+  if (!BACKEND_URL) {
+    return NextResponse.json(
+      { message: "Backend URL not configured", status: "error" },
+      { status: 500 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const queryString = searchParams.toString();

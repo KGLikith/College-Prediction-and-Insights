@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -23,6 +23,8 @@ import {
   Users,
   Trophy,
   ArrowRight,
+  BarChart3,
+  CheckCircle2,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Form } from "@/components/ui/form"
@@ -45,6 +47,8 @@ import { FormFields } from "@/components/form-fields"
 import { ExamTypeEnum, type ExamType } from "@/lib/types"
 import { getValidationSchema } from "@/lib/validation"
 import { DISTRICT_CODE_TO_NAME } from "@/lib/types"
+
+const LAST_SEARCH_KEY = "kcet_last_search"
 
 export default function Page() {
   const router = useRouter()
@@ -69,10 +73,33 @@ export default function Page() {
     },
   })
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LAST_SEARCH_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        form.reset({ ...form.getValues(), ...saved, exam: "kcet" })
+      }
+    } catch {
+      localStorage.removeItem(LAST_SEARCH_KEY)
+    }
+    // Restore the last search once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const onSubmit = async (data: SchemaType) => {
     try {
       setIsLoading(true)
       setError(null)
+
+      try {
+        localStorage.setItem(
+          LAST_SEARCH_KEY,
+          JSON.stringify({ ...data, exam: "kcet" })
+        )
+      } catch {
+        // Persisting the last search is best-effort; ignore storage failures.
+      }
 
       const queryParams = new URLSearchParams()
 
@@ -144,9 +171,17 @@ export default function Page() {
           <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
             Accurate college predictions based on rank, category, and preferences
           </p>
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard/category-guide")}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 underline underline-offset-4 hover:text-neutral-900 dark:hover:text-neutral-50"
+          >
+            <BookOpen className="h-4 w-4" />
+            New to KCET category codes? Read the Category Guide
+          </button>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14">
 
           <Card
             className="group cursor-pointer border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md transition-all duration-300 bg-neutral-50 dark:bg-neutral-900/50"
@@ -192,6 +227,26 @@ export default function Page() {
 
           <Card
             className="group cursor-pointer border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md transition-all duration-300 bg-neutral-50 dark:bg-neutral-900/50"
+            onClick={() => router.push("/dashboard/check")}
+          >
+            <CardHeader className="pb-4">
+              <div className="w-10 h-10 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center mb-3">
+                <CheckCircle2 className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
+              </div>
+              <CardTitle className="text-lg text-neutral-900 dark:text-neutral-50">
+                Course Check
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                Check a specific course at a specific college
+              </p>
+              <ArrowRight className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+            </CardContent>
+          </Card>
+
+          <Card
+            className="group cursor-pointer border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md transition-all duration-300 bg-neutral-50 dark:bg-neutral-900/50"
             onClick={() => router.push("/dashboard/preference")}
           >
             <CardHeader className="pb-4">
@@ -225,6 +280,26 @@ export default function Page() {
             <CardContent>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                 Ask questions about KCET counselling
+              </p>
+              <ArrowRight className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+            </CardContent>
+          </Card>
+
+          <Card
+            className="group cursor-pointer border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md transition-all duration-300 bg-neutral-50 dark:bg-neutral-900/50"
+            onClick={() => router.push("/dashboard/explore/comparisons")}
+          >
+            <CardHeader className="pb-4">
+              <div className="w-10 h-10 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center mb-3">
+                <BarChart3 className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
+              </div>
+              <CardTitle className="text-lg text-neutral-900 dark:text-neutral-50">
+                Analytics &amp; Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                Compare colleges, courses, categories &amp; year trends
               </p>
               <ArrowRight className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
             </CardContent>

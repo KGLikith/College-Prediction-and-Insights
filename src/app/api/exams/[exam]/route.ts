@@ -10,10 +10,17 @@ export async function GET(req: Request, context: { params: Promise<{ exam: strin
     return NextResponse.json({ message: "Invalid exam type" }, { status: 400 });
   }
 
+  if (!BACKEND_URL) {
+    return NextResponse.json(
+      { message: "Backend URL not configured", status: "error" },
+      { status: 500 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
-    const queryString = searchParams.toString();
-    const apiUrl = `${BACKEND_URL}/api/exams/${exam}?${queryString}&year=2024`;
+    searchParams.set("year", "2024");
+    const apiUrl = `${BACKEND_URL}/api/exams/${exam}?${searchParams.toString()}`;
 
     const response = await axios.get(apiUrl, {
       timeout: 10000,

@@ -25,7 +25,10 @@ import {
   Award,
   Target,
   TrendingUp,
+  Check,
 } from "lucide-react"
+
+import { exportCollegesToCsv } from "@/lib/csv"
 
 import { StatCard } from "@/components/StatCard"
 import { ChanceDonutChart } from "@/components/charts/ChanceDonutChart"
@@ -34,6 +37,7 @@ import { CollegeCard } from "@/components/college-card"
 import { CollegeTable } from "@/components/tables/CollegeTable"
 import { TableSkeleton } from "@/components/LoadingSkeleton"
 import { ResultsFilter } from "@/components/result-filter"
+import { Disclaimer } from "@/components/disclaimer"
 
 const getCourseCode = (courseName: string): string => {
   if (!courseName) return ""
@@ -67,12 +71,31 @@ export default function FlatResults() {
   const userRank = searchParams.get("rank")
   const userCategory = searchParams.get("cat")
 
+  const quotaSummary = [
+    searchParams.get("hk") === "true" && "HK",
+    searchParams.get("rural") === "true" && "Rural",
+    searchParams.get("kannada") === "true" && "Kannada",
+  ]
+    .filter(Boolean)
+    .join(", ")
+
   const [results, setResults] = useState<APIResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const [page, setPage] = useState(1)
   const [limit] = useState(25)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard unavailable (e.g. insecure context); leave the button as-is.
+    }
+  }
 
   const [filters, setFilters] = useState<{
     collegeId: string
@@ -155,7 +178,7 @@ export default function FlatResults() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24 items-cen">
+      <div className="flex justify-center py-24 items-center">
         <RefreshCw className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
@@ -177,23 +200,42 @@ export default function FlatResults() {
           New Search
         </Button>
         <div className="flex gap-2">
-          {/* <Button variant="outline" size="sm">
-            <Share2 className="h-4 w-4 mr-2" /> Share
+          <Button variant="outline" size="sm" onClick={handleCopyLink}>
+            {copied ? (
+              <Check className="h-4 w-4 mr-2" />
+            ) : (
+              <Share2 className="h-4 w-4 mr-2" />
+            )}
+            {copied ? "Link copied" : "Share"}
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={filteredColleges.length === 0}
+            onClick={() =>
+              exportCollegesToCsv(
+                filteredColleges,
+                `kcet-results-rank-${userRank ?? "all"}.csv`
+              )
+            }
+          >
             <Download className="h-4 w-4 mr-2" /> Export CSV
-          </Button> */}
+          </Button>
         </div>
       </div>
 
       <Card className="bg-muted/30">
-        <CardContent className="py-3 flex gap-6 text-sm">
+        <CardContent className="py-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
           <span>Exam: <b>{examType.toUpperCase()}</b></span>
           <span>Rank: <b>{userRank}</b></span>
           <span>Category: <b>{filters.category !== "all" ? filters.category : userCategory}</b></span>
+          <span>Round: <b>{filters.round !== null ? filters.round : "All"}</b></span>
+          {quotaSummary && <span>Quotas: <b>{quotaSummary}</b></span>}
           <span>Results: <b>{filteredColleges.length}</b></span>
         </CardContent>
       </Card>
+
+      <Disclaimer variant="cutoff" />
 
       {filteredColleges.length > 0 && (
         <>
@@ -201,8 +243,8 @@ export default function FlatResults() {
             <section>
               <h2 className="text-xl font-semibold mb-3">Top Matches</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {top3.map((c, i) => (
-                  <CollegeCard key={i} college={c} />
+                {top3.map((c) => (
+                  <CollegeCard key={`${c.collegeID}-${c.course}`} college={c} />
                 ))}
               </div>
             </section>
@@ -257,26 +299,44 @@ export default function FlatResults() {
           <Card className="border-dashed bg-muted/20">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
               <Target className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium">No matches for your filters</p>
-              <p className="text-sm text-muted-foreground max-w-[300px] mt-2 mb-6">
-                Try changing or clearing your filters to see more colleges.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setPage(1)
-                  setFilters({
-                    collegeId: "",
-                    course: "all",
-                    category: "all",
-                    chances: "all",
-                    round: null,
-                    district: "ALL",
-                  })
-                }}
-              >
-                Clear Filters
-              </Button>
+              {colleges.length === 0 ? (
+                <>
+                  <p className="text-lg font-medium">No colleges found</p>
+                  <p className="text-sm text-muted-foreground max-w-[320px] mt-2 mb-6">
+                    We couldn&apos;t find any colleges for this rank and category.
+                    Try a different rank, category, or round from a new search.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push("/dashboard")}
+                  >
+                    New Search
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-medium">No matches for your filters</p>
+                  <p className="text-sm text-muted-foreground max-w-[300px] mt-2 mb-6">
+                    Try changing or clearing your filters to see more colleges.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPage(1)
+                      setFilters({
+                        collegeId: "",
+                        course: "all",
+                        category: "all",
+                        chances: "all",
+                        round: null,
+                        district: "ALL",
+                      })
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
         ) : loading ? (

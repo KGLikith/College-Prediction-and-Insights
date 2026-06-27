@@ -19,7 +19,10 @@ import {
   Award,
   Target,
   TrendingUp,
+  Check,
 } from "lucide-react"
+
+import { exportCollegesToCsv } from "@/lib/csv"
 
 import { ResultsFilter } from "@/components/result-filter"
 import { CollegeCard } from "@/components/college-card"
@@ -28,6 +31,7 @@ import { ChanceDonutChart } from "@/components/charts/ChanceDonutChart"
 import { RankComparisonChart } from "@/components/charts/RankComparisonChart"
 import { TableSkeleton } from "@/components/LoadingSkeleton"
 import { CollegeTable } from "@/components/tables/CollegeTable"
+import { Disclaimer } from "@/components/disclaimer"
 
 const getCourseCode = (courseName: string): string => {
   if (!courseName) return ""
@@ -44,6 +48,17 @@ export default function PredictionsPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [limit] = useState(25)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard unavailable (e.g. insecure context); leave the button as-is.
+    }
+  }
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -160,14 +175,28 @@ export default function PredictionsPage() {
           New Search
         </Button>
         <div className="flex gap-3">
-          {/* <Button variant="outline" size="sm">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </Button> */}
-          {/* <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleCopyLink}>
+            {copied ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <Share2 className="mr-2 h-4 w-4" />
+            )}
+            {copied ? "Link copied" : "Share"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={filteredColleges.length === 0}
+            onClick={() =>
+              exportCollegesToCsv(
+                filteredColleges,
+                `kcet-predictions-rank-${userRank ?? "all"}.csv`
+              )
+            }
+          >
             <Download className="mr-2 h-4 w-4" />
             Export CSV
-          </Button> */}
+          </Button>
         </div>
       </div>
 
@@ -180,14 +209,16 @@ export default function PredictionsPage() {
         </CardContent>
       </Card>
 
+      <Disclaimer variant="statistical" />
+
       {filteredColleges.length > 0 && (
         <>
           {top3.length > 0 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Top Matches</h2>
               <div className="grid md:grid-cols-3 gap-6">
-                {top3.map((c, i) => (
-                  <CollegeCard key={i} college={c} />
+                {top3.map((c) => (
+                  <CollegeCard key={`${c.collegeID}-${c.course}`} college={c} />
                 ))}
               </div>
             </div>
@@ -225,26 +256,44 @@ export default function PredictionsPage() {
         <Card className="border-dashed bg-muted/20">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Target className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium">No matches for your filters</p>
-            <p className="text-sm text-muted-foreground max-w-[300px] mt-2 mb-6">
-              Try changing or clearing your filters to see more colleges.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setPage(1)
-                setFilters({
-                  collegeId: "",
-                  course: "all",
-                  category: "all",
-                  chances: "all",
-                  round: "all",
-                  district: "ALL",
-                })
-              }}
-            >
-              Clear Filters
-            </Button>
+            {colleges.length === 0 ? (
+              <>
+                <p className="text-lg font-medium">No colleges found</p>
+                <p className="text-sm text-muted-foreground max-w-[320px] mt-2 mb-6">
+                  We couldn&apos;t find any predictions for this rank and category.
+                  Try a different rank, category, or round from a new search.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/dashboard")}
+                >
+                  New Search
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-lg font-medium">No matches for your filters</p>
+                <p className="text-sm text-muted-foreground max-w-[300px] mt-2 mb-6">
+                  Try changing or clearing your filters to see more colleges.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setPage(1)
+                    setFilters({
+                      collegeId: "",
+                      course: "all",
+                      category: "all",
+                      chances: "all",
+                      round: "all",
+                      district: "ALL",
+                    })
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : loading ? (
