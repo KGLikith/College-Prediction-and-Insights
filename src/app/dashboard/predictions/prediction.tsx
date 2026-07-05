@@ -78,6 +78,8 @@ export default function PredictionsPage() {
     chances: searchParams.get("chances") || "all",
     round: searchParams.get("round") || "all",
     district: searchParams.get("district") || "ALL",
+    bundle: searchParams.get("bundle") || "false",
+    year: searchParams.get("year") || "2025",
   }
 
   const [filters, setFilters] = useState(initialFilters)
@@ -111,6 +113,9 @@ export default function PredictionsPage() {
 
         if (filters.district !== "ALL")
           queryParams.set("district", filters.district)
+        if (filters.bundle === "true")
+          queryParams.set("bundle", "true")
+          
         queryParams.set("page", page.toString())
         queryParams.set("limit", limit.toString())
 
@@ -217,8 +222,8 @@ export default function PredictionsPage() {
             <div>
               <h2 className="text-2xl font-bold mb-4">Top Matches</h2>
               <div className="grid md:grid-cols-3 gap-6">
-                {top3.map((c) => (
-                  <CollegeCard key={`${c.collegeID}-${c.course}`} college={c} />
+                {top3.map((c, i) => (
+                  <CollegeCard key={`${c.collegeID}-${c.course}-${c.round ?? i}-${i}`} college={c} />
                 ))}
               </div>
             </div>
@@ -247,6 +252,8 @@ export default function PredictionsPage() {
             chances: "all",
             round: "all",
             district: "ALL",
+            bundle: "false",
+            year: "2025",
           })
         }}
       />
@@ -287,6 +294,8 @@ export default function PredictionsPage() {
                       chances: "all",
                       round: "all",
                       district: "ALL",
+                      bundle: "false",
+                      year: "2025",
                     })
                   }}
                 >

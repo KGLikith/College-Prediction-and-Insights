@@ -40,6 +40,8 @@ interface ResultsFilterProps {
     chances: string
     round: string
     district: string
+    bundle: string
+    year: string
   }
   onApplyFilters: (filters: {
     collegeId: string
@@ -48,6 +50,8 @@ interface ResultsFilterProps {
     chances: string
     round: string
     district: string
+    bundle: string
+    year: string
   }) => void
   onClearFilters: () => void
 }
@@ -65,6 +69,8 @@ export function ResultsFilter({
   const [chances, setChances] = useState(initialValues.chances || "all")
   const [round, setRound] = useState(initialValues.round || "all")
   const [district, setDistrict] = useState(initialValues.district || "ALL")
+  const [bundle, setBundle] = useState(initialValues.bundle === "true")
+  const [year, setYear] = useState(initialValues.year || "2025")
 
   const [colleges, setColleges] = useState<{ collegeID: string; collegeName: string }[]>([])
   const [isLoadingColleges, setIsLoadingColleges] = useState(false)
@@ -132,6 +138,8 @@ export function ResultsFilter({
     setChances(initialValues.chances)
     setRound(initialValues.round)
     setDistrict(initialValues.district)
+    setBundle(initialValues.bundle === "true")
+    setYear(initialValues.year || "2025")
   }, [initialValues])
 
 
@@ -141,7 +149,9 @@ export function ResultsFilter({
     category !== "all" ||
     chances !== "all" ||
     round !== "all" ||
-    district !== "ALL"
+    district !== "ALL" ||
+    bundle !== false ||
+    year !== "2025"
 
   const handleApply = () => {
     onApplyFilters({
@@ -151,6 +161,8 @@ export function ResultsFilter({
       chances,
       round,
       district,
+      bundle: bundle ? "true" : "false",
+      year,
     })
   }
 
@@ -161,6 +173,8 @@ export function ResultsFilter({
     setChances("all")
     setRound("all")
     setDistrict("ALL")
+    setBundle(false)
+    setYear("2025")
 
     onClearFilters()
   }
@@ -376,6 +390,34 @@ export function ResultsFilter({
                 <SelectItem value="3">Round 3</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex flex-col gap-2 flex-1 min-w-[140px]">
+            <label className="text-xs font-medium text-muted-foreground">
+              Year
+            </label>
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger className="h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2025">2025</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-2 flex-1 min-w-[140px] justify-center pt-5">
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input
+                type="checkbox"
+                checked={bundle}
+                onChange={(e) => setBundle(e.target.checked)}
+                className="rounded border-neutral-300 text-primary focus:ring-primary h-4 w-4"
+              />
+              Cluster by Course
+            </label>
           </div>
 
         </div>

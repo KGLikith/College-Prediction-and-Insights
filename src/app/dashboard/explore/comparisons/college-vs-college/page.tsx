@@ -27,7 +27,7 @@ export default function CollegeVsCollegePage() {
   const [availableCourses, setAvailableCourses] = useState<{code: string, name: string}[]>([])
   
   // Contextual Controls State
-  const [selectedColleges, setSelectedColleges] = useState(["E005", "E003", "E009"]) // Defaults
+  const [selectedColleges, setSelectedColleges] = useState(["E005", "E003"]) // Defaults
   const [selectedCategory, setSelectedCategory] = useState("GM")
   const [selectedCourse, setSelectedCourse] = useState("CS")
   
@@ -37,7 +37,7 @@ export default function CollegeVsCollegePage() {
     async function fetchData() {
       try {
         setLoading(true)
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://168.144.64.95:4000"
+        const baseUrl = ""
         
         let collegesList = allColleges
         if (collegesList.length === 0) {

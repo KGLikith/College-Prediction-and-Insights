@@ -32,7 +32,7 @@ export default function QuotasAnalyticsPage() {
     async function fetchData() {
       try {
         setLoading(true)
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://168.144.64.95:4000"
+        const baseUrl = ""
         
         if (colleges.length === 0) {
           const rankingRes = await axios.get(`${baseUrl}/api/colleges/kcet?limit=250`)

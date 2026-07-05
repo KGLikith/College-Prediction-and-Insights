@@ -9,7 +9,6 @@ import clsx from "clsx"
 const NAV_ITEMS = [
   { label: "Predictions", href: "/dashboard/#prediction-form", link: "/dashboard/results" },
   { label: "Course Check", href: "/dashboard/check", link: "/dashboard/check" },
-  { label: "Last Year Results", href: "/dashboard/#prediction-form", link: "/dashboard/predictions" },
   { label: "Explore Colleges", href: "/dashboard/explore/colleges", link: "/dashboard/explore/colleges" },
   { label: "Analytics", href: "/dashboard/explore/comparisons", link: "/dashboard/explore/comparisons" },
   { label: "KCET Assistant", href: "/dashboard/chat", link: "/dashboard/chat" },
@@ -50,9 +49,11 @@ export default function Header() {
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-            KCET Admission Insights
-          </h1>
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+              KCET Admission Insights
+            </h1>
+          </Link>
           <p className="hidden text-xs text-neutral-600 dark:text-neutral-400 sm:block">
             Predict your college admission chances
           </p>

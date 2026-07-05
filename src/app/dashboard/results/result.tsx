@@ -104,6 +104,8 @@ export default function FlatResults() {
     chances: string
     round: number | null
     district: string
+    bundle: string
+    year: string
   }>({
     collegeId: searchParams.get("college-code") || searchParams.get("collegeId") || "",
     course: searchParams.get("course") || "all",
@@ -111,6 +113,8 @@ export default function FlatResults() {
     chances: searchParams.get("chances") || "all",
     round: searchParams.get("round") ? Number(searchParams.get("round")) : null,
     district: searchParams.get("district") || "ALL",
+    bundle: searchParams.get("bundle") || "false",
+    year: searchParams.get("year") || "2025",
   })
 
   useEffect(() => {
@@ -140,6 +144,10 @@ export default function FlatResults() {
           queryParams.set("round", filters.round.toString())
         if (filters.district !== "ALL")
           queryParams.set("district", filters.district)
+        if (filters.bundle === "true")
+          queryParams.set("bundle", "true")
+        if (filters.year)
+          queryParams.set("year", filters.year)
 
         router.replace(`?${queryParams.toString()}`, { scroll: false })
         
@@ -243,8 +251,8 @@ export default function FlatResults() {
             <section>
               <h2 className="text-xl font-semibold mb-3">Top Matches</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {top3.map((c) => (
-                  <CollegeCard key={`${c.collegeID}-${c.course}`} college={c} />
+                {top3.map((c, i) => (
+                  <CollegeCard key={`${c.collegeID}-${c.course}-${c.round ?? i}-${i}`} college={c} />
                 ))}
               </div>
             </section>
@@ -266,6 +274,8 @@ export default function FlatResults() {
           chances: filters.chances,
           round: filters.round ? filters.round.toString() : "all",
           district: filters.district,
+          bundle: filters.bundle,
+          year: filters.year,
         }}
         onApplyFilters={(newFilters) => {
           setPage(1)
@@ -279,6 +289,8 @@ export default function FlatResults() {
                 ? null
                 : Number(newFilters.round),
             district: newFilters.district,
+            bundle: newFilters.bundle,
+            year: newFilters.year,
           })
         }}
         onClearFilters={() => {
@@ -290,6 +302,8 @@ export default function FlatResults() {
             chances: "all",
             round: null,
             district: "ALL",
+            bundle: "false",
+            year: "2025",
           })
         }}
       />
@@ -330,6 +344,8 @@ export default function FlatResults() {
                         chances: "all",
                         round: null,
                         district: "ALL",
+                        bundle: "false",
+                        year: "2025",
                       })
                     }}
                   >

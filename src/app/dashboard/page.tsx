@@ -27,7 +27,7 @@ import {
   CheckCircle2,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Form } from "@/components/ui/form"
+import { Form, FormField, FormControl } from "@/components/ui/form"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Tabs,
@@ -54,7 +54,7 @@ export default function Page() {
   const router = useRouter()
 
   const [selectedExam, setSelectedExam] = useState<ExamType>("kcet")
-  const [usePrediction, setUsePrediction] = useState(false)
+  const [usePrediction, setUsePrediction] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -70,7 +70,9 @@ export default function Page() {
       course: undefined,
       college: undefined,
       district: "ALL",
-    },
+      bundle: false,
+      year: 2025,
+    } as any,
   })
 
   useEffect(() => {
@@ -104,6 +106,9 @@ export default function Page() {
       const queryParams = new URLSearchParams()
 
       Object.entries(data).forEach(([key, value]) => {
+        // The ML prediction API does not support the 'year' parameter and fails if it is provided.
+        if (usePrediction && key === "year") return;
+        
         if (
           value !== "" &&
           value !== null &&
@@ -157,7 +162,9 @@ export default function Page() {
       course: undefined,
       college: undefined,
       district: "ALL",
-    })
+      bundle: false,
+      year: 2025,
+    } as any)
   }
 
   return (
@@ -340,6 +347,65 @@ export default function Page() {
 
                 <div className="max-w-3xl mx-auto grid gap-6">
                   <FormFields examType={selectedExam} />
+                </div>
+
+                <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-4 items-center justify-between w-full">
+                  <div className="flex-1 flex items-center gap-4 justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 px-5 py-4 bg-neutral-100 dark:bg-neutral-800">
+                    <div>
+                      <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                        Cluster by Course/Branch
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        Group identical courses together
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="bundle"
+                      render={({ field }) => (
+                        <FormControl>
+                          <Checkbox
+                            checked={!!field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      )}
+                    />
+                  </div>
+
+                  <div className="flex-1 flex items-center gap-4 justify-between rounded-lg border border-neutral-200 dark:border-neutral-800 px-5 py-3 bg-neutral-100 dark:bg-neutral-800 h-[74px]">
+                    <div>
+                      <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                        Cutoff Year
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        Base data for predictions
+                      </p>
+                    </div>
+                    <div className="w-[100px]">
+                      <FormField
+                        control={form.control}
+                        name="year"
+                        render={({ field }) => (
+                          <Select
+                            value={String(field.value)}
+                            onValueChange={(v) => field.onChange(Number(v))}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="h-8">
+                                <SelectValue placeholder="Year" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="2025">2025</SelectItem>
+                              <SelectItem value="2024">2024</SelectItem>
+                              <SelectItem value="2023">2023</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {selectedExam !== "jee" && (

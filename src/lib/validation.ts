@@ -27,6 +27,8 @@ const baseSchema = z.object({
     (v) => (typeof v === "string" && (v.trim() === "" || v === "ALL") ? undefined : v),
     z.string().optional()
   ),
+  bundle: z.boolean().optional(),
+  year: z.coerce.number().optional(),
 });
 
 export const kcetSchema = baseSchema.extend({

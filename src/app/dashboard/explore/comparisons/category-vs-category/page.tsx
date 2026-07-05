@@ -36,7 +36,7 @@ export default function CategoryVsCategoryPage() {
     async function fetchData() {
       try {
         setLoading(true)
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://168.144.64.95:4000"
+        const baseUrl = ""
         
         // Fetch college list for datalist
         if (colleges.length === 0) {
