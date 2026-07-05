@@ -167,7 +167,26 @@ export default function FlatResults() {
     fetchResults()
   }, [examType, page, limit, filters, searchParams, router])
 
-  const colleges: College[] = results?.colleges ?? []
+  const colleges: College[] = useMemo(() => {
+    const rawColleges = results?.colleges ?? []
+    const flat: College[] = []
+    for (const c of rawColleges) {
+      if ((c as any).rounds && Array.isArray((c as any).rounds)) {
+        for (const r of (c as any).rounds) {
+          flat.push({
+            ...c,
+            round: r.round,
+            cutoffRank: r.cutoffRank,
+            category: r.category,
+            chances: r.chances,
+          })
+        }
+      } else {
+        flat.push(c)
+      }
+    }
+    return flat
+  }, [results?.colleges])
 
   const filteredColleges = useMemo(() => {
     if (!filters.collegeId) return colleges

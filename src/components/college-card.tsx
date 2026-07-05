@@ -104,7 +104,7 @@ export function CollegeCard({ college }: CollegeCardProps) {
             Cutoff Rank
           </div>
           <span className="font-bold text-destructive">
-            {college.cutoffRank.toLocaleString()}
+            {college.cutoffRank?.toLocaleString() ?? "-"}
           </span>
         </div>
 
@@ -114,7 +114,7 @@ export function CollegeCard({ college }: CollegeCardProps) {
             GM Rank
           </div>
           <span className="font-medium text-green-600 dark:text-green-400">
-            {college.gmRank.toLocaleString()}
+            {college.gmRank?.toLocaleString() ?? "-"}
           </span>
         </div>
 

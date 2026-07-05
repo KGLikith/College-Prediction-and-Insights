@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Check, Info } from "lucide-react"
+import { Plus, Check, Info, ArrowUpDown } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   collegeToShortlistItem,
@@ -38,6 +38,10 @@ export const CollegeTable = ({
   title = "All Predictions",
 }: CollegeTableProps) => {
   const [shortlisted, setShortlisted] = useState<Set<string>>(new Set())
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof College | null
+    direction: "asc" | "desc"
+  }>({ key: null, direction: "asc" })
 
   useEffect(() => {
     setShortlisted(
@@ -59,8 +63,65 @@ export const CollegeTable = ({
     })
   }
 
+  const requestSort = (key: keyof College) => {
+    let direction: "asc" | "desc" = "asc"
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc"
+    } else if (sortConfig.key === key && sortConfig.direction === "desc") {
+      // Third click removes sort
+      setSortConfig({ key: null, direction: "asc" })
+      return
+    }
+    setSortConfig({ key, direction })
+  }
+
   const sortedColleges = React.useMemo(() => {
-    return [...colleges].sort((a, b) => {
+    const sortableItems = [...colleges]
+
+    if (sortConfig.key !== null) {
+      sortableItems.sort((a, b) => {
+        let aValue = a[sortConfig.key!]
+        let bValue = b[sortConfig.key!]
+
+        if (aValue === undefined) aValue = "" as any
+        if (bValue === undefined) bValue = "" as any
+
+        let comparison = 0
+
+        if (sortConfig.key === "chances") {
+          const chanceOrder = { high: 3, medium: 2, low: 1 } as const
+          const chanceA = chanceOrder[(a.chances as keyof typeof chanceOrder)] || 0
+          const chanceB = chanceOrder[(b.chances as keyof typeof chanceOrder)] || 0
+          comparison = chanceA - chanceB
+        } else if (sortConfig.key === "round") {
+          const roundA = parseInt(a.round as any) || 0
+          const roundB = parseInt(b.round as any) || 0
+          comparison = roundA - roundB
+        } else {
+          if (aValue < bValue) {
+            comparison = -1
+          } else if (aValue > bValue) {
+            comparison = 1
+          }
+        }
+
+        if (comparison !== 0) {
+          return sortConfig.direction === "asc" ? comparison : -comparison
+        }
+
+        // Secondary sort by cutoffRank if primary sort isn't cutoffRank
+        if (sortConfig.key !== "cutoffRank") {
+          const cutoffA = a.cutoffRank || 0
+          const cutoffB = b.cutoffRank || 0
+          return cutoffA - cutoffB
+        }
+
+        return 0
+      })
+      return sortableItems
+    }
+
+    return sortableItems.sort((a, b) => {
       // 1. Sort by College Name (or ID if name is missing)
       const collegeCompare = (a.collegeName || a.collegeID || "").localeCompare(b.collegeName || b.collegeID || "")
       if (collegeCompare !== 0) return collegeCompare
@@ -74,7 +135,7 @@ export const CollegeTable = ({
       const roundB = parseInt(b.round as any) || 0
       return roundA - roundB
     })
-  }, [colleges])
+  }, [colleges, sortConfig])
 
   if (colleges.length === 0) {
     return (
@@ -95,10 +156,12 @@ export const CollegeTable = ({
         <h2 className="text-lg font-semibold tracking-tight">
           {title}
         </h2>
-        <Alert className="bg-muted/50 border-none py-3">
-          <Info className="h-4 w-4" />
+        <Alert className="bg-blue-50/50 border-blue-200 text-blue-800 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-300 py-3">
+          <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <AlertDescription className="text-sm">
-            Use the <Plus className="h-3 w-3 inline mx-1" /> buttons to add courses to your <strong>Preference Builder</strong>. Adding a course automatically selects all its rounds, as preferences are based on College + Course.
+            <span>
+              Use the <strong className="border border-blue-200 dark:border-blue-800 px-1.5 py-0.5 rounded bg-background text-xs mx-1 shadow-sm text-foreground">+</strong> buttons to add courses to your <strong>Preference Builder</strong>. Adding a course automatically selects all its rounds, as preferences are based on College + Course.
+            </span>
           </AlertDescription>
         </Alert>
       </div>
@@ -109,8 +172,10 @@ export const CollegeTable = ({
             <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-[90px] px-4 py-3 text-sm font-semibold">
-                    ID
+                  <TableHead className="w-[90px] px-4 py-3 text-sm font-semibold cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => requestSort("collegeID")}>
+                    <div className="flex items-center gap-1">
+                      ID <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                    </div>
                   </TableHead>
                   <TableHead className="w-[260px] px-4 py-3 text-sm font-semibold">
                     College Name
@@ -121,8 +186,10 @@ export const CollegeTable = ({
                   <TableHead className="w-[90px] px-4 py-3 text-sm font-semibold text-center">
                     Cat
                   </TableHead>
-                  <TableHead className="w-[80px] px-4 py-3 text-sm font-semibold text-center">
-                    Round
+                  <TableHead className="w-[80px] px-4 py-3 text-sm font-semibold text-center cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => requestSort("round")}>
+                    <div className="flex items-center justify-center gap-1">
+                      Round <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                    </div>
                   </TableHead>
                   <TableHead className="w-[120px] px-4 py-3 text-sm font-semibold text-right">
                     Cutoff
@@ -130,8 +197,10 @@ export const CollegeTable = ({
                   <TableHead className="w-[120px] px-4 py-3 text-sm font-semibold text-right">
                     GM Rank
                   </TableHead>
-                  <TableHead className="w-[110px] px-4 py-3 text-sm font-semibold text-center">
-                    Chance
+                  <TableHead className="w-[110px] px-4 py-3 text-sm font-semibold text-center cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => requestSort("chances")}>
+                    <div className="flex items-center justify-center gap-1">
+                      Chance <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                    </div>
                   </TableHead>
                   <TableHead className="w-[80px] px-2 py-3 text-sm font-semibold text-center">
                     <div className="flex items-center justify-center gap-1">
@@ -200,11 +269,11 @@ export const CollegeTable = ({
                     </TableCell>
 
                     <TableCell className="px-4 py-3 text-right font-mono">
-                      {college.cutoffRank.toLocaleString()}
+                      {college.cutoffRank?.toLocaleString() ?? "-"}
                     </TableCell>
 
                     <TableCell className="px-4 py-3 text-right font-mono">
-                      {college.gmRank.toLocaleString()}
+                      {college.gmRank?.toLocaleString() ?? "-"}
                     </TableCell>
 
                     <TableCell className="px-4 py-3 text-center">
