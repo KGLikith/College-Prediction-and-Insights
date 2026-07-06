@@ -31,11 +31,13 @@ import {
 interface CollegeTableProps {
   colleges: College[]
   title?: string
+  isBundled?: boolean
 }
 
 export const CollegeTable = ({
   colleges,
   title = "All Predictions",
+  isBundled = false,
 }: CollegeTableProps) => {
   const [shortlisted, setShortlisted] = useState<Set<string>>(new Set())
   const [sortConfig, setSortConfig] = useState<{
@@ -122,6 +124,8 @@ export const CollegeTable = ({
     }
 
     return sortableItems.sort((a, b) => {
+      if (!isBundled) return 0
+
       // 1. Sort by College Name (or ID if name is missing)
       const collegeCompare = (a.collegeName || a.collegeID || "").localeCompare(b.collegeName || b.collegeID || "")
       if (collegeCompare !== 0) return collegeCompare
@@ -135,7 +139,7 @@ export const CollegeTable = ({
       const roundB = parseInt(b.round as any) || 0
       return roundA - roundB
     })
-  }, [colleges, sortConfig])
+  }, [colleges, sortConfig, isBundled])
 
   if (colleges.length === 0) {
     return (

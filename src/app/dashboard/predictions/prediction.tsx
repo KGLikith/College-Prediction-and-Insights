@@ -113,8 +113,8 @@ export default function PredictionsPage() {
 
         if (filters.district !== "ALL")
           queryParams.set("district", filters.district)
-        if (filters.bundle === "true")
-          queryParams.set("bundle", "true")
+        
+        queryParams.set("bundle", filters.bundle === "true" ? "true" : "false")
           
         queryParams.set("page", page.toString())
         queryParams.set("limit", limit.toString())
@@ -327,7 +327,7 @@ export default function PredictionsPage() {
         <TableSkeleton />
       ) : (
         <>
-          <CollegeTable colleges={filteredColleges} title="All Predictions" />
+          <CollegeTable colleges={filteredColleges} title="All Predictions" isBundled={filters.bundle === "true"} />
 
           <div className="flex justify-center gap-4 mt-6 items-center mb-2">
             <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>

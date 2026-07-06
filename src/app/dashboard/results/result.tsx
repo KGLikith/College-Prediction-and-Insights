@@ -144,8 +144,9 @@ export default function FlatResults() {
           queryParams.set("round", filters.round.toString())
         if (filters.district !== "ALL")
           queryParams.set("district", filters.district)
-        if (filters.bundle === "true")
-          queryParams.set("bundle", "true")
+        
+        queryParams.set("bundle", filters.bundle === "true" ? "true" : "false")
+        
         if (filters.year)
           queryParams.set("year", filters.year)
 
@@ -377,7 +378,7 @@ export default function FlatResults() {
         ) : loading ? (
           <TableSkeleton />
         ) : (
-          <CollegeTable colleges={filteredColleges} title="All Results" />
+          <CollegeTable colleges={filteredColleges} title="All Results" isBundled={filters.bundle === "true"} />
         )}
 
         {filteredColleges.length > 0 && (
